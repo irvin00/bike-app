@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from jinja2 import Environment, FileSystemLoader
 
 from app.db import get_db, init_db
-from app.routes import bikes, pages
+from app.routes import bikes, pages, serve_images
 
 BASE_DIR = Path(__file__).parent.parent
 
@@ -33,3 +33,4 @@ app.state.templates = templates
 
 app.include_router(pages.router)
 app.include_router(bikes.router)
+app.include_router(serve_images.router)

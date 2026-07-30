@@ -48,6 +48,13 @@ VALUES (3, 2, '2022-08-20', 'Replaced chain', 25.00);
 
 INSERT OR IGNORE INTO maintenance_records (id, bike_id, date, description, cost)
 VALUES (4, 2, '2023-05-10', 'New front tire after glass puncture', 60.00);
+
+-- Images
+INSERT OR IGNORE INTO images (id, bike_id, filename, original_name, is_primary, sort_order)
+VALUES (1, 1, 'carbon-race-bike.jpg', 'carbon-race-bike.jpg', 1, 0);
+
+INSERT OR IGNORE INTO images (id, bike_id, filename, original_name, is_primary, sort_order)
+VALUES (2, 2, 'fixie-bike.jpg', 'fixie-bike.jpg', 1, 0);
 """
 
 

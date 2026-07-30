@@ -231,6 +231,7 @@ Each card in the grid:
 - Bike card partial template (image, name, description, pills, status)
 - Wire to `/api/bikes` + `/` route returning full HTML
 - Inline headline editing via vanilla JS (click → input → fetch PATCH)
+- Primary image rendering on cards (fallback to placeholder when no image)
 
 ### Phase 3 — Bike Detail, Add & Edit
 - `/bikes/{id}` route: full-page template
