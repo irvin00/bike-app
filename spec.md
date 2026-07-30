@@ -9,14 +9,16 @@ maintenance records, images, tags ("pills"), and full-page detail views.
 
 | Layer          | Choice                        | Why                                                |
 | -------------- | ----------------------------- | -------------------------------------------------- |
-| Framework      | Next.js 14 (App Router)       | UI + API in one app; file-based routing; RSC ready |
-| Language       | TypeScript (strict)           | Catch mistakes early on a personal project         |
-| Styling        | Tailwind CSS                  | Rapid UI with consistent design tokens             |
-| Database       | SQLite via `better-sqlite3`   | Zero-setup, single-file DB; perfect for single-user|
-| ORM            | Drizzle ORM                   | Lightweight, type-safe, good SQLite support        |
-| Image storage  | Local `/uploads` folder       | Simple today; swap in S3/GCS later (see §6)        |
-| Image serving  | Next.js static serving + API  | Serves local files; API route for protected paths  |
-| Forms          | React Hook Form + Zod         | Validation and ergonomics                          |
+| Framework      | FastAPI + Jinja2              | Python API + server-rendered templates; dead simple |
+| Language       | Python 3.14+                  | Clean, readable, no build step                     |
+| Package mgmt   | uv                            | Fast, deterministic lockfile, single binary        |
+| Styling        | Plain CSS + CSS variables     | No build step, design tokens via custom properties  |
+| Client JS      | Vanilla JS (no framework)     | Sprinkled interactivity: inline edit, drag-and-drop |
+| Database       | SQLite via `aiosqlite`        | Zero-setup, single-file DB; async for FastAPI       |
+| Image processing| Pillow                        | Resize + thumbnail on upload                        |
+| Image storage  | Local `/uploads` folder       | Simple today; swap in S3/GCS later (see §5)        |
+| Image serving  | FastAPI route                 | `/api/images/...` serves uploaded files            |
+| Forms          | Standard HTML forms + vanilla JS | No heavy form library needed for this scope     |
 | Hosting        | Single-node VPS or home lab   | Personal app; no scale needed                      |
 
 ---
@@ -81,47 +83,48 @@ maintenance records, images, tags ("pills"), and full-page detail views.
 ## 3. API Design
 
 All routes live under `/api/`. Responses are JSON. Dates use ISO 8601.
+FastAPI path parameters use `{id}` syntax.
 
 ### 3.1 Bikes
 
-| Method | Path              | Body / Query                  | Notes                        |
-| ------ | ----------------- | ----------------------------- | ---------------------------- |
-| GET    | `/api/bikes`      | `?status=active` (optional)   | List all bikes (card data)   |
-| GET    | `/api/bikes/:id`  |                               | Single bike + pills + images |
-| POST   | `/api/bikes`      | `{ name, description, ... }`  | Create a bike                |
-| PATCH  | `/api/bikes/:id`  | partial bike fields            | Update bike                  |
-| DELETE | `/api/bikes/:id`  |                               | Delete bike + cascade        |
+| Method | Path                        | Body / Query                  | Notes                        |
+| ------ | --------------------------- | ----------------------------- | ---------------------------- |
+| GET    | `/api/bikes`                | `?status=active` (optional)   | List all bikes (card data)   |
+| GET    | `/api/bikes/{id}`           |                               | Single bike + pills + images |
+| POST   | `/api/bikes`                | `{ name, description, ... }`  | Create a bike                |
+| PATCH  | `/api/bikes/{id}`           | partial bike fields            | Update bike                  |
+| DELETE | `/api/bikes/{id}`           |                               | Delete bike + cascade        |
 
 ### 3.2 Pills
 
-| Method | Path             | Body              | Notes          |
-| ------ | ---------------- | ----------------- | -------------- |
-| GET    | `/api/pills`     |                   | List all pills |
-| POST   | `/api/pills`     | `{ label, color }`| Create pill   |
-| DELETE | `/api/pills/:id` |                   | Delete pill    |
+| Method | Path                  | Body              | Notes          |
+| ------ | --------------------- | ----------------- | -------------- |
+| GET    | `/api/pills`          |                   | List all pills |
+| POST   | `/api/pills`          | `{ label, color }`| Create pill   |
+| DELETE | `/api/pills/{id}`     |                   | Delete pill    |
 
 ### 3.3 Bike ↔ Pill attachments
 
-| Method | Path                              | Notes              |
-| ------ | --------------------------------- | ------------------ |
-| PUT    | `/api/bikes/:id/pills`            | `{ pillIds: [] }` — sets full set of attached pills |
+| Method | Path                                    | Notes              |
+| ------ | --------------------------------------- | ------------------ |
+| PUT    | `/api/bikes/{id}/pills`                 | `{ pill_ids: [] }` — sets full set of attached pills |
 
 ### 3.4 Maintenance Records
 
-| Method | Path                                      | Body                         | Notes                 |
-| ------ | ----------------------------------------- | ---------------------------- | --------------------- |
-| GET    | `/api/bikes/:id/maintenance`              |                              | All records for bike  |
-| POST   | `/api/bikes/:id/maintenance`              | `{ date, description, cost }`| Add record            |
-| PATCH  | `/api/bikes/:id/maintenance/:recordId`    | partial fields               | Edit record           |
-| DELETE | `/api/bikes/:id/maintenance/:recordId`    |                              | Delete record         |
+| Method | Path                                            | Body                         | Notes                 |
+| ------ | ----------------------------------------------- | ---------------------------- | --------------------- |
+| GET    | `/api/bikes/{id}/maintenance`                   |                              | All records for bike  |
+| POST   | `/api/bikes/{id}/maintenance`                   | `{ date, description, cost }`| Add record            |
+| PATCH  | `/api/bikes/{id}/maintenance/{record_id}`        | partial fields               | Edit record           |
+| DELETE | `/api/bikes/{id}/maintenance/{record_id}`        |                              | Delete record         |
 
 ### 3.5 Images
 
-| Method | Path                              | Notes                          |
-| ------ | --------------------------------- | ------------------------------ |
-| POST   | `/api/bikes/:id/images`           | Multipart upload (one or many) |
-| DELETE | `/api/bikes/:id/images/:imageId`  | Deletes file + DB row          |
-| PATCH  | `/api/bikes/:id/images/:imageId`  | `{ is_primary, sort_order }`   |
+| Method | Path                                    | Notes                          |
+| ------ | --------------------------------------- | ------------------------------ |
+| POST   | `/api/bikes/{id}/images`                | Multipart upload (one or many) |
+| DELETE | `/api/bikes/{id}/images/{image_id}`     | Deletes file + DB row          |
+| PATCH  | `/api/bikes/{id}/images/{image_id}`     | `{ is_primary, sort_order }`   |
 
 ---
 
@@ -200,14 +203,14 @@ Each card in the grid:
 
 - Images are written to `/uploads/bikes/<bike-id>/<uuid>-<original-name>`.
 - Filenames are UUID-prefixed to prevent collisions.
-- A Next.js API route serves images: `/api/images/<bike-id>/<filename>`.
+- A FastAPI route serves images: `/api/images/{bike_id}/{filename}`.
   This lets us add auth or access control later without changing URLs.
-- Image processing on upload: resize to max 2000px wide via `sharp`, generate a
+- Image processing on upload: resize to max 2000px wide via Pillow, generate a
   400px thumbnail for cards.
 
 ### Phase 2 — Cloud (future)
 
-- Abstract behind an `ImageStore` interface with `put()`, `get()`, `delete()`.
+- Abstract behind an `ImageStore` protocol with `put()`, `get()`, `delete()`.
 - Implement `LocalImageStore` now, swap in `S3ImageStore` later.
 - The API route hides the storage backend — frontend never touches files directly.
 
@@ -215,44 +218,43 @@ Each card in the grid:
 
 ## 6. Implementation Phases
 
-### Phase 1 — Skeleton & DB (day 1)
-- Scaffold Next.js project with TypeScript + Tailwind
-- Set up Drizzle ORM + SQLite schema
-- Create DB migration
+### Phase 1 — Skeleton & DB
+- FastAPI app scaffold (`app.py` entry point)
+- SQLite schema as raw SQL or simple helper module (`db.py`)
+- Create tables on startup
 - Seed one or two bikes for development
-- Build API routes for bikes (GET, POST)
+- Build API routes for bikes (GET list, POST create)
 
-### Phase 2 — Home Page & Cards (day 2)
-- Build Layout shell
-- Build BikeCard components with static data
-- Wire to `/api/bikes`
-- Implement inline headline editing
-- Build pill display on cards
+### Phase 2 — Home Page & Cards
+- Base Jinja2 layout template (nav bar, status filter, CSS imports)
+- Home page template: responsive grid of bike cards
+- Bike card partial template (image, name, description, pills, status)
+- Wire to `/api/bikes` + `/` route returning full HTML
+- Inline headline editing via vanilla JS (click → input → fetch PATCH)
 
-### Phase 3 — Bike Detail Page (day 3)
-- Build `/bikes/:id` page
-- Image gallery component
+### Phase 3 — Bike Detail Page
+- `/bikes/{id}` route: full-page template
+- Image gallery (CSS scroll-snap horizontal strip + full-size modal)
 - Full bike info display
-- Maintenance records list + inline add form
+- Maintenance records list + inline add form (vanilla JS fetch)
 
-### Phase 4 — Pills Management (day 3-4)
-- Pill CRUD API
-- Pill management page
-- Pill selector on bike edit form
+### Phase 4 — Pills Management
+- Pill CRUD API routes
+- `/pills` page: list, add form, delete buttons
+- Pill selector (multi-select checkboxes) on bike create/edit forms
 
-### Phase 5 — Image Upload (day 4)
-- Multipart upload endpoint
-- Image resizing with `sharp`
-- Drag-and-drop upload zone
-- Primary image selection
-- Reorder / delete images
+### Phase 5 — Image Upload
+- Multipart upload endpoint (FastAPI `UploadFile`)
+- Image resizing + thumbnail with Pillow
+- Drag-and-drop upload zone (vanilla JS `drop` event + `FormData`)
+- Primary image selection, reorder, delete
 
-### Phase 6 — Polish (day 5)
-- Responsive grid (1 col mobile, 2 tablet, 3+ desktop)
+### Phase 6 — Polish
+- Responsive grid (1 col mobile, 2 tablet, 3+ desktop) via CSS container queries
 - Transitions and hover states
-- Empty states and error boundaries
-- Confirm dialogs for destructive actions
-- Loading skeletons
+- Empty states and error banners
+- Confirm dialogs for delete actions (vanilla JS `<dialog>`)
+- Loading spinners (CSS animation on fetch calls)
 
 ---
 
@@ -261,77 +263,49 @@ Each card in the grid:
 ```
 bike_view/
 ├── spec.md                          ← this file
-├── package.json
-├── tsconfig.json
-├── tailwind.config.ts
-├── next.config.ts
-├── drizzle.config.ts
+├── pyproject.toml                   ← uv project config + dependencies
+├── uv.lock                          ← deterministic lockfile
 ├── data/
 │   └── bike_view.db                ← SQLite database (gitignored)
 ├── uploads/                         ← local image storage (gitignored)
 │   └── bikes/
 │       └── <bike-id>/
 │           └── <uuid>-<name>.jpg
-├── src/
-│   ├── app/
-│   │   ├── layout.tsx
-│   │   ├── page.tsx                ← home page (bike grid)
-│   │   ├── bikes/
-│   │   │   ├── [id]/
-│   │   │   │   ├── page.tsx        ← bike detail
-│   │   │   │   └── edit/
-│   │   │   │       └── page.tsx    ← edit form
-│   │   │   └── new/
-│   │   │       └── page.tsx        ← create form
-│   │   └── pills/
-│   │       └── page.tsx            ← pill management
-│   ├── api/
-│   │   ├── bikes/
-│   │   │   ├── route.ts            ← GET (list), POST (create)
-│   │   │   └── [id]/
-│   │   │       ├── route.ts        ← GET, PATCH, DELETE
-│   │   │       ├── pills/
-│   │   │       │   └── route.ts    ← PUT (set pills)
-│   │   │       ├── maintenance/
-│   │   │       │   ├── route.ts    ← GET, POST
-│   │   │       │   └── [recordId]/
-│   │   │       │       └── route.ts ← PATCH, DELETE
-│   │   │       └── images/
-│   │   │           ├── route.ts    ← POST (upload)
-│   │   │           └── [imageId]/
-│   │   │               └── route.ts ← DELETE, PATCH
-│   │   ├── images/
-│   │   │   └── [...path]/
-│   │   │       └── route.ts        ← serves uploaded images
-│   │   └── pills/
-│   │       ├── route.ts            ← GET, POST
-│   │       └── [id]/
-│   │           └── route.ts        ← DELETE
-│   ├── db/
-│   │   ├── schema.ts               ← Drizzle table definitions
-│   │   ├── index.ts                ← DB connection + client
-│   │   └── seed.ts                 ← dev seed data
-│   ├── lib/
-│   │   ├── image-store.ts          ← ImageStore interface + local impl
-│   │   └── utils.ts
-│   └── components/
-│       ├── ui/                     ← shared primitives
-│       │   ├── button.tsx
-│       │   ├── input.tsx
-│       │   ├── dialog.tsx
-│       │   └── skeleton.tsx
-│       ├── BikeCard.tsx
-│       ├── BikeCardGrid.tsx
-│       ├── BikeForm.tsx
-│       ├── PillBadge.tsx
-│       ├── PillSelector.tsx
-│       ├── ImageGallery.tsx
-│       ├── ImageUploadZone.tsx
-│       ├── MaintenanceTimeline.tsx
-│       ├── MaintenanceForm.tsx
-│       └── ConfirmDialog.tsx
-└── public/
-    └── placeholder-bike.svg        ← fallback image
+├── app/
+│   ├── __init__.py
+│   ├── main.py                      ← FastAPI app entry point, lifespan, mount static
+│   ├── db.py                        ← aiosqlite connection, init_db(), query helpers
+│   ├── seed.py                      ← dev seed data (2 bikes, sample pills)
+│   ├── image_store.py               ← ImageStore protocol + LocalImageStore + thumbnail
+│   ├── routes/
+│   │   ├── __init__.py
+│   │   ├── bikes.py                 ← /api/bikes and /api/bikes/{id}
+│   │   ├── pills.py                 ← /api/pills and /api/pills/{id}
+│   │   ├── bike_pills.py            ← /api/bikes/{id}/pills
+│   │   ├── maintenance.py           ← /api/bikes/{id}/maintenance/{record_id}
+│   │   ├── images.py                ← /api/bikes/{id}/images/{image_id}
+│   │   └── serve_images.py          ← /api/images/{bike_id}/{filename}
+│   └── templates/
+│       ├── base.html.j2             ← shell layout (nav, CSS, JS imports)
+│       ├── index.html.j2            ← home page: bike card grid
+│       ├── bike_detail.html.j2      ← full-page view + maintenance
+│       ├── bike_form.html.j2        ← shared create/edit form
+│       ├── pills.html.j2            ← pill management page
+│       └── partials/
+│           ├── bike_card.html.j2    ← single card (reused in grid)
+│           ├── pill_badge.html.j2   ← colored pill span
+│           └── confirm_dialog.html.j2 ← reusable <dialog>
+├── static/
+│   ├── css/
+│   │   └── app.css                  ← all styles, CSS variables for tokens
+│   ├── js/
+│   │   ├── inline-edit.js           ← click-to-edit headline
+│   │   ├── image-upload.js          ← drag-and-drop + preview + FormData
+│   │   ├── maintenance-form.js      ← inline add/edit via fetch
+│   │   ├── confirm-dialog.js        ← <dialog> open/close + confirm hook
+│   │   └── api.js                   ← tiny fetch wrapper (JSON headers, error handling)
+│   └── img/
+│       └── placeholder-bike.svg     ← fallback image
 ```
 
 ---
