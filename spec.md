@@ -218,7 +218,7 @@ Each card in the grid:
 
 ## 6. Implementation Phases
 
-### Phase 1 — Skeleton & DB
+### Phase 1 — Skeleton & DB ✅
 - FastAPI app scaffold (`app.py` entry point)
 - SQLite schema as raw SQL or simple helper module (`db.py`)
 - Create tables on startup
