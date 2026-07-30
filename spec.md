@@ -255,6 +255,7 @@ Each card in the grid:
 - Empty states and error banners
 - Confirm dialogs for delete actions (vanilla JS `<dialog>`)
 - Loading spinners (CSS animation on fetch calls)
+- Unit tests with pytest + httpx (ASGITransport) for all API routes
 
 ---
 
