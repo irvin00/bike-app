@@ -232,11 +232,14 @@ Each card in the grid:
 - Wire to `/api/bikes` + `/` route returning full HTML
 - Inline headline editing via vanilla JS (click → input → fetch PATCH)
 
-### Phase 3 — Bike Detail Page
+### Phase 3 — Bike Detail, Add & Edit
 - `/bikes/{id}` route: full-page template
 - Image gallery (CSS scroll-snap horizontal strip + full-size modal)
 - Full bike info display
 - Maintenance records list + inline add form (vanilla JS fetch)
+- `/bikes/new` route: create bike form
+- `/bikes/{id}/edit` route: edit bike form (shared template with create)
+- Form fields: name, description, full story, status, dates, pills, images
 
 ### Phase 4 — Pills Management
 - Pill CRUD API routes
