@@ -225,7 +225,7 @@ Each card in the grid:
 - Seed one or two bikes for development
 - Build API routes for bikes (GET list, POST create)
 
-### Phase 2 — Home Page & Cards
+### Phase 2 — Home Page & Cards ✅
 - Base Jinja2 layout template (nav bar, status filter, CSS imports)
 - Home page template: responsive grid of bike cards
 - Bike card partial template (image, name, description, pills, status)
