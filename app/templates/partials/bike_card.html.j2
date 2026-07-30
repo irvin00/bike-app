@@ -1,0 +1,45 @@
+<article class="bike-card" data-bike-id="{{ bike.id }}">
+  <a href="/bikes/{{ bike.id }}" class="bike-card__image-link">
+    {% if bike.primary_image %}
+      <img
+        src="/api/images/{{ bike.id }}/{{ bike.primary_image }}"
+        alt="{{ bike.name }}"
+        class="bike-card__image"
+      >
+    {% else %}
+      <img
+        src="/static/img/placeholder-bike.svg"
+        alt=""
+        class="bike-card__image bike-card__image--placeholder"
+      >
+    {% endif %}
+  </a>
+
+  <div class="bike-card__body">
+    <h2 class="bike-card__name" data-bike-id="{{ bike.id }}">
+      <span class="bike-card__name-text">{{ bike.name }}</span>
+    </h2>
+
+    <p class="bike-card__desc">{{ bike.description }}</p>
+
+    {% if bike.pills %}
+    <div class="bike-card__pills">
+      {% for pill in bike.pills %}
+        {% include "partials/pill_badge.html.j2" %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="bike-card__footer">
+      <span class="bike-card__status status--{{ bike.status }}">
+        {{ "Active" if bike.status == "active" else "Former" }}
+      </span>
+      <button
+        class="bike-card__delete btn--icon"
+        data-bike-id="{{ bike.id }}"
+        data-bike-name="{{ bike.name }}"
+        title="Delete bike"
+      >&times;</button>
+    </div>
+  </div>
+</article>

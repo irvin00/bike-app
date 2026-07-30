@@ -3,10 +3,10 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from jinja2 import Environment, FileSystemLoader
 
 from app.db import get_db, init_db
-from app.routes import bikes
+from app.routes import bikes, pages
 
 BASE_DIR = Path(__file__).parent.parent
 
@@ -25,7 +25,11 @@ app = FastAPI(lifespan=lifespan)
 static_dir = BASE_DIR / "static"
 app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
-templates = Jinja2Templates(directory=str(BASE_DIR / "app" / "templates"))
+templates = Environment(
+    loader=FileSystemLoader(str(BASE_DIR / "app" / "templates")),
+    autoescape=True,
+)
 app.state.templates = templates
 
+app.include_router(pages.router)
 app.include_router(bikes.router)

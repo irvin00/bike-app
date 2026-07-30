@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bike View</title>
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="container">
+      <a href="/" class="nav__title">Bike View</a>
+      <div class="nav__actions">
+        <div class="status-filter">
+          <button class="status-filter__btn active" data-status="all">All</button>
+          <button class="status-filter__btn" data-status="active">Active</button>
+          <button class="status-filter__btn" data-status="former">Former</button>
+        </div>
+        <a href="/bikes/new" class="btn btn--primary">+ Add Bike</a>
+        <a href="/pills" class="btn btn--ghost">Pills</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/inline-edit.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
