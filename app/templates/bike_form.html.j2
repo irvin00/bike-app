@@ -1,0 +1,151 @@
+{% extends "base.html.j2" %}
+
+{% block content %}
+<a
+  href="{{ '/' if mode == 'create' else '/bikes/' ~ bike.id }}"
+  class="back-link"
+>{{ 'Back to all bikes' if mode == 'create' else 'Back to bike' }}</a>
+
+<div class="bike-form">
+  <h1>{{ 'Add New Bike' if mode == 'create' else 'Edit Bike' }}</h1>
+
+  <form id="bike-form">
+    <!-- Name -->
+    <div class="form-field">
+      <label for="name">Name *</label>
+      <input
+        type="text" id="name" name="name" required
+        value="{{ bike.name if bike else '' }}"
+      >
+    </div>
+
+    <!-- Description -->
+    <div class="form-field">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" rows="3">{{ bike.description if bike else '' }}</textarea>
+    </div>
+
+    <!-- Full Story -->
+    <div class="form-field">
+      <label for="full_story">Full Story</label>
+      <textarea id="full_story" name="full_story" rows="10">{{ bike.full_story if bike else '' }}</textarea>
+    </div>
+
+    <!-- Status -->
+    <div class="form-field">
+      <label>Status</label>
+      <div class="radio-group">
+        <label>
+          <input type="radio" name="status" value="active"
+            {{ 'checked' if (bike and bike.status == 'active') or mode == 'create' else '' }}
+          > Active
+        </label>
+        <label>
+          <input type="radio" name="status" value="former"
+            {{ 'checked' if bike and bike.status == 'former' else '' }}
+          > Former
+        </label>
+      </div>
+    </div>
+
+    <!-- Dates -->
+    <div class="form-field">
+      <label for="acquired_on">Acquired On</label>
+      <input
+        type="date" id="acquired_on" name="acquired_on"
+        value="{{ bike.acquired_on if bike else '' }}"
+      >
+    </div>
+
+    <div class="form-field">
+      <label for="retired_on">Retired On</label>
+      <input
+        type="date" id="retired_on" name="retired_on"
+        value="{{ bike.retired_on if bike else '' }}"
+      >
+    </div>
+
+    <!-- Pill Selector -->
+    <div class="form-field">
+      <label>Pills</label>
+      <div class="pill-selector">
+        {% for pill in all_pills %}
+          {% set pill_ids = bike_pills | map(attribute='id') | list if bike_pills else [] %}
+          <label class="pill-option" style="--pill-color: {{ pill.color }}">
+            <input type="checkbox" name="pill_ids" value="{{ pill.id }}"
+              {{ 'checked' if pill.id in pill_ids else '' }}
+            >
+            {{ pill.label }}
+          </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Existing Images (edit mode only) -->
+    {% if mode == 'edit' and images %}
+      <div class="form-field">
+        <label>Images</label>
+        <div class="image-list">
+          {% for image in images %}
+            <img
+              src="/api/images/{{ bike.id }}/{{ image.filename }}"
+              alt="{{ image.original_name }}"
+              class="image-list__thumb"
+            >
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="form-actions">
+      <button type="submit" class="btn btn--primary">
+        {{ 'Add Bike' if mode == 'create' else 'Save Changes' }}
+      </button>
+      <a
+        href="{{ '/' if mode == 'create' else '/bikes/' ~ bike.id }}"
+        class="btn btn--ghost"
+      >Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.getElementById('bike-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const data = {
+      name: formData.get('name'),
+      description: formData.get('description') || '',
+      full_story: formData.get('full_story') || '',
+      status: formData.get('status') || 'active',
+      acquired_on: formData.get('acquired_on') || null,
+      retired_on: formData.get('retired_on') || null,
+    };
+    const pillIds = formData.getAll('pill_ids').map(Number);
+
+    {% if mode == 'create' %}
+    try {
+      const bike = await api.post('/api/bikes', data);
+      if (pillIds.length > 0) {
+        await api.put('/api/bikes/' + bike.id + '/pills', { pill_ids: pillIds });
+      }
+      window.location.href = '/bikes/' + bike.id;
+    } catch (err) {
+      alert('Failed to create bike: ' + err.message);
+    }
+    {% else %}
+    try {
+      await api.patch('/api/bikes/{{ bike.id }}', data);
+      await api.put('/api/bikes/{{ bike.id }}/pills', { pill_ids: pillIds });
+      window.location.href = '/bikes/{{ bike.id }}';
+    } catch (err) {
+      alert('Failed to save bike: ' + err.message);
+    }
+    {% endif %}
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,20 @@
+<div class="maintenance-record" data-record-id="{{ record.id }}">
+  <div class="maintenance-record__date">{{ record.date }}</div>
+  <div class="maintenance-record__desc">{{ record.description }}</div>
+  {% if record.cost is not none %}
+    <span class="maintenance-record__cost">${{ "%.2f"|format(record.cost) }}</span>
+  {% endif %}
+  <div class="maintenance-record__actions">
+    <button
+      class="maintenance-record__edit"
+      data-record-id="{{ record.id }}"
+      data-record-date="{{ record.date }}"
+      data-record-desc="{{ record.description }}"
+      data-record-cost="{{ record.cost if record.cost is not none else '' }}"
+    >Edit</button>
+    <button
+      class="maintenance-record__delete"
+      data-record-id="{{ record.id }}"
+    >Delete</button>
+  </div>
+</div>

@@ -1,0 +1,123 @@
+{% extends "base.html.j2" %}
+
+{% block content %}
+<a href="/" class="back-link">Back to all bikes</a>
+
+<div class="bike-detail">
+  <!-- LEFT: Image Gallery -->
+  <div class="bike-detail__gallery">
+    {% if images %}
+      <div class="gallery">
+        {% for image in images %}
+          <img
+            src="/api/images/{{ bike.id }}/{{ image.filename }}"
+            alt="{{ bike.name }}"
+            class="gallery__image"
+            data-full-src="/api/images/{{ bike.id }}/{{ image.filename }}"
+          >
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="gallery--empty">No images yet</div>
+    {% endif %}
+  </div>
+
+  <!-- RIGHT: Bike Info -->
+  <div class="bike-detail__info">
+    <h1 class="bike-info__name">{{ bike.name }}</h1>
+
+    <div class="bike-info__meta">
+      <span class="bike-card__status status--{{ bike.status }}">
+        {{ "Active" if bike.status == "active" else "Former" }}
+      </span>
+      {% if bike.acquired_on %}
+        <span>Acquired {{ bike.acquired_on }}</span>
+      {% endif %}
+      {% if bike.retired_on %}
+        <span>Retired {{ bike.retired_on }}</span>
+      {% endif %}
+    </div>
+
+    {% if bike.description %}
+      <p class="bike-info__description">{{ bike.description }}</p>
+    {% endif %}
+
+    {% if bike.full_story %}
+      <div class="bike-info__full-story">{{ bike.full_story }}</div>
+    {% endif %}
+
+    {% if pills %}
+      <div class="bike-info__pills">
+        {% for pill in pills %}
+          {% include "partials/pill_badge.html.j2" %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <a href="/bikes/{{ bike.id }}/edit" class="btn btn--primary">Edit Bike</a>
+  </div>
+</div>
+
+<!-- Maintenance Section -->
+<div class="maintenance-section" data-bike-id="{{ bike.id }}">
+  <div class="maintenance-header">
+    <h2>Maintenance History ({{ maintenance|length }})</h2>
+    <button class="btn btn--ghost" id="add-maintenance-btn">+ Add Record</button>
+  </div>
+
+  <!-- Inline Add Form (hidden by default) -->
+  <form class="maintenance-form maintenance-form--hidden" id="add-maintenance-form">
+    <input type="date" name="date" required>
+    <input type="text" name="description" placeholder="What was done?" required>
+    <input type="number" name="cost" placeholder="Cost ($)" step="0.01" min="0">
+    <button type="submit" class="btn btn--primary">Save</button>
+    <button type="button" class="btn btn--ghost" id="cancel-maintenance-btn">Cancel</button>
+  </form>
+
+  <!-- Timeline -->
+  <div class="maintenance-timeline" id="maintenance-timeline">
+    {% for record in maintenance %}
+      {% include "partials/maintenance_record.html.j2" %}
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Image Modal -->
+<div class="modal-overlay" id="image-modal">
+  <button class="modal-close" id="modal-close-btn">&times;</button>
+  <img src="" alt="" id="modal-image">
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/maintenance-form.js"></script>
+<script>
+  (function() {
+    const modal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('modal-image');
+    const closeBtn = document.getElementById('modal-close-btn');
+    const gallery = document.querySelector('.gallery');
+
+    if (gallery) {
+      gallery.addEventListener('click', function(e) {
+        const img = e.target.closest('.gallery__image');
+        if (!img) return;
+        modalImg.src = img.dataset.fullSrc;
+        modal.classList.add('open');
+      });
+    }
+
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal || e.target === closeBtn) {
+        modal.classList.remove('open');
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.classList.contains('open')) {
+        modal.classList.remove('open');
+      }
+    });
+  })();
+</script>
+{% endblock %}

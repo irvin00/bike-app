@@ -45,6 +45,19 @@ const api = {
     }
   },
 
+  async put(url, body) {
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || `PUT ${url} failed (${res.status})`);
+    }
+    return res.json();
+  },
+
   async upload(url, formData) {
     const res = await fetch(url, { method: 'POST', body: formData });
     if (!res.ok) {

@@ -333,3 +333,497 @@ img {
   color: var(--color-accent);
   text-decoration: underline;
 }
+
+/* === Back Link === */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  padding: 1rem 0;
+}
+
+.back-link::before {
+  content: "\2190";
+}
+
+.back-link:hover {
+  color: var(--color-accent);
+}
+
+/* === Detail Page Layout === */
+.bike-detail {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  padding: 1.5rem 0 2rem;
+}
+
+@media (max-width: 768px) {
+  .bike-detail {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* === Image Gallery === */
+.gallery {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  border-radius: var(--radius-card);
+  max-height: 500px;
+  scrollbar-width: none;
+}
+
+.gallery::-webkit-scrollbar {
+  display: none;
+}
+
+.gallery__image {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+  max-height: 500px;
+  width: auto;
+  border-radius: 8px;
+  cursor: pointer;
+  object-fit: cover;
+  transition: opacity 0.15s;
+}
+
+.gallery__image:hover {
+  opacity: 0.85;
+}
+
+/* === Image Modal === */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.modal-overlay.open {
+  display: flex;
+}
+
+.modal-overlay img {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 8px;
+  cursor: default;
+  object-fit: contain;
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  font-size: 2rem;
+  color: #fff;
+  background: none;
+  border: none;
+  cursor: pointer;
+  line-height: 1;
+  transition: opacity 0.15s;
+}
+
+.modal-close:hover {
+  opacity: 0.7;
+}
+
+/* === Bike Info (Detail Page) === */
+.bike-detail__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.bike-info__name {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.bike-info__meta {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.bike-info__description {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+}
+
+.bike-info__full-story {
+  white-space: pre-wrap;
+  line-height: 1.7;
+  color: var(--color-text);
+  font-size: 0.9375rem;
+}
+
+.bike-info__pills {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0;
+}
+
+.bike-detail__info .btn--primary {
+  align-self: flex-start;
+  margin-top: 0.5rem;
+}
+
+/* === Maintenance Section === */
+.maintenance-section {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.maintenance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.maintenance-header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Maintenance Add Form */
+.maintenance-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  padding: 1rem;
+  background: var(--color-bg);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.maintenance-form--hidden {
+  display: none;
+}
+
+.maintenance-form input {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+.maintenance-form input[type="date"] {
+  width: 150px;
+}
+
+.maintenance-form input[type="text"] {
+  flex: 1;
+  min-width: 180px;
+}
+
+.maintenance-form input[type="number"] {
+  width: 110px;
+}
+
+/* Maintenance Timeline */
+.maintenance-timeline {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.maintenance-timeline::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-border);
+}
+
+.maintenance-record {
+  position: relative;
+  padding: 1rem;
+  background: var(--color-surface);
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  box-shadow: var(--shadow-card);
+}
+
+.maintenance-record::before {
+  content: "";
+  position: absolute;
+  left: -1.35rem;
+  top: 1.2rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: 2px solid var(--color-surface);
+}
+
+.maintenance-record__date {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.maintenance-record__desc {
+  font-size: 0.9375rem;
+}
+
+.maintenance-record__cost {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-active);
+  background: #ecfdf5;
+  padding: 0.1rem 0.5rem;
+  border-radius: var(--radius-pill);
+}
+
+.maintenance-record__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.maintenance-record__edit,
+.maintenance-record__delete {
+  background: none;
+  border: none;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.maintenance-record__edit:hover {
+  color: var(--color-accent);
+  background: #eff6ff;
+}
+
+.maintenance-record__delete:hover {
+  color: var(--color-danger);
+  background: #fef2f2;
+}
+
+/* Maintenance Record Edit Form */
+.maintenance-record__edit-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.maintenance-record__edit-form input {
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 0.8125rem;
+}
+
+.maintenance-record__edit-form input[type="date"] {
+  width: 140px;
+}
+
+.maintenance-record__edit-form input[type="text"] {
+  flex: 1;
+  min-width: 150px;
+}
+
+.maintenance-record__edit-form input[type="number"] {
+  width: 100px;
+}
+
+.maintenance-record__edit-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.maintenance-record__edit-save,
+.maintenance-record__edit-cancel {
+  font-size: 0.8125rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: opacity 0.15s;
+}
+
+.maintenance-record__edit-save {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.maintenance-record__edit-save:hover {
+  opacity: 0.9;
+}
+
+.maintenance-record__edit-cancel {
+  background: var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.maintenance-record__edit-cancel:hover {
+  background: #d1d5db;
+}
+
+/* === Bike Form Page === */
+.bike-form {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 1.5rem 0 3rem;
+}
+
+.bike-form h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.form-field {
+  margin-bottom: 1.25rem;
+}
+
+.form-field label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.35rem;
+  font-size: 0.875rem;
+  color: var(--color-text);
+}
+
+.form-field input[type="text"],
+.form-field input[type="date"],
+.form-field textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.9375rem;
+  transition: border-color 0.15s;
+  background: var(--color-surface);
+}
+
+.form-field input[type="text"]:focus,
+.form-field input[type="date"]:focus,
+.form-field textarea:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-field textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* Radio Group */
+.radio-group {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.radio-group label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 400;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+
+.radio-group input[type="radio"] {
+  accent-color: var(--color-accent);
+}
+
+/* Pill Selector */
+.pill-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pill-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  background: color-mix(in srgb, var(--pill-color, #6b7280) 8%, transparent);
+  color: var(--pill-color, #6b7280);
+}
+
+.pill-option:hover {
+  border-color: var(--pill-color, #6b7280);
+  background: color-mix(in srgb, var(--pill-color, #6b7280) 15%, transparent);
+}
+
+.pill-option input[type="checkbox"] {
+  accent-color: var(--pill-color, #6b7280);
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  margin-top: 0.5rem;
+}
+
+/* Image List (Edit Form) */
+.image-list {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.image-list__thumb {
+  width: 100px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+}
+
+/* === Empty Gallery State === */
+.gallery--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  background: var(--color-bg);
+  border-radius: var(--radius-card);
+  border: 2px dashed var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}

@@ -233,7 +233,7 @@ Each card in the grid:
 - Inline headline editing via vanilla JS (click → input → fetch PATCH)
 - Primary image rendering on cards (fallback to placeholder when no image)
 
-### Phase 3 — Bike Detail, Add & Edit
+### Phase 3 — Bike Detail, Add & Edit ✅
 - `/bikes/{id}` route: full-page template
 - Image gallery (CSS scroll-snap horizontal strip + full-size modal)
 - Full bike info display
