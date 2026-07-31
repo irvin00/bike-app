@@ -10,9 +10,25 @@ is_running() {
   pgrep -f 'uvicorn app.main' > /dev/null 2>&1
 }
 
+# Primary LAN IPv4 (the address other devices on this network can reach).
+# Uses the default-route interface so it works on Wi-Fi or Ethernet.
+lan_ip() {
+  local iface
+  iface=$(route -n get default 2>/dev/null | awk '/interface:/{print $2}')
+  if [ -n "$iface" ]; then
+    ipconfig getifaddr "$iface" 2>/dev/null && return
+  fi
+  ipconfig getifaddr en0 2>/dev/null
+}
+
 show_status() {
   if is_running; then
     echo -e "Status: ${GREEN}● running${NC} at http://127.0.0.1:8000"
+    local ip
+    ip=$(lan_ip)
+    if [ -n "$ip" ]; then
+      echo -e "Network: ${GREEN}http://${ip}:8000${NC} (other devices on this network)"
+    fi
   else
     echo -e "Status: ${RED}● stopped${NC}"
   fi
@@ -24,11 +40,17 @@ cmd_start() {
     return
   fi
   echo -n "Starting..."
-  nohup uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 > /tmp/bikeview.log 2>&1 &
+  # 0.0.0.0 so the app is reachable from other devices on the network.
+  nohup uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 > /tmp/bikeview.log 2>&1 &
   sleep 2
   if is_running; then
     echo -e " ${GREEN}done${NC}"
     echo -e "Open ${GREEN}http://127.0.0.1:8000${NC}"
+    local ip
+    ip=$(lan_ip)
+    if [ -n "$ip" ]; then
+      echo -e "From other devices: ${GREEN}http://${ip}:8000${NC}"
+    fi
   else
     echo -e " ${RED}failed${NC}"
     echo "Check /tmp/bikeview.log for errors"
