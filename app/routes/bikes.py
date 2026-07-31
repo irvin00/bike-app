@@ -105,7 +105,7 @@ async def get_bike(request: Request, bike_id: int):
         raise HTTPException(status_code=404, detail="Bike not found")
     bike = await _bike_with_pills(db, row)
     images = await _fetchall(db,
-        "SELECT * FROM images WHERE bike_id = ? ORDER BY sort_order, id",
+        "SELECT * FROM images WHERE bike_id = ? ORDER BY is_primary DESC, sort_order, id",
         (bike_id,),
     )
     bike["images"] = [_serialize_image(r, bike_id) for r in images]

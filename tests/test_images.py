@@ -110,7 +110,8 @@ async def test_patch_primary_unsets_others(client, image_bytes):
     assert r.status_code == 200
     assert r.json()["is_primary"] == 1
     bike = (await client.get(f"/api/bikes/{bike_id}")).json()
-    assert [img["is_primary"] for img in bike["images"]] == [0, 1]  # exactly one
+    assert [img["is_primary"] for img in bike["images"]] == [1, 0]
+    assert bike["images"][0]["id"] == second
 
 
 async def test_patch_sort_order(client, image_bytes):

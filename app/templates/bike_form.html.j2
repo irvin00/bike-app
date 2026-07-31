@@ -19,6 +19,51 @@
       >
     </div>
 
+
+  <!-- Images -->
+    <div class="form-field">
+      <label>Images</label>
+      {% if mode == 'edit' %}
+        <div class="upload-zone" id="upload-zone">
+          <p>Drag &amp; drop images here, or click to browse</p>
+          <input type="file" id="image-file-input" multiple accept="image/*" hidden>
+        </div>
+        <div id="image-list" class="image-list" data-bike-id="{{ bike.id }}">
+          {% for image in images %}
+            <div
+              class="image-row{{ ' is-primary' if image.is_primary }}"
+              data-image-id="{{ image.id }}"
+            >
+              <span class="image-row__handle" draggable="true" title="Drag to reorder">&vArr;</span>
+              <img
+                src="/api/images/{{ bike.id }}/{{ image.thumb }}"
+                alt="{{ image.original_name }}"
+              >
+              <button
+                type="button"
+                class="image-row__primary"
+                data-image-id="{{ image.id }}"
+                title="Make primary"
+              >{{ '★' if image.is_primary else '☆' }}</button>
+              <button
+                type="button"
+                class="image-row__delete"
+                data-image-id="{{ image.id }}"
+                title="Delete image"
+              >&times;</button>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="upload-zone" id="upload-zone">
+          <p>Drag &amp; drop images here, or click to browse</p>
+          <input type="file" id="image-file-input" multiple accept="image/*" hidden>
+        </div>
+        <div id="image-list" class="image-list"></div>
+        <p class="pill-note">The first image becomes the primary photo — drag rows to reorder before saving.</p>
+      {% endif %}
+    </div>
+    
     <!-- Description -->
     <div class="form-field">
       <label for="description">Description</label>
@@ -79,50 +124,6 @@
           </label>
         {% endfor %}
       </div>
-    </div>
-
-    <!-- Images -->
-    <div class="form-field">
-      <label>Images</label>
-      {% if mode == 'edit' %}
-        <div class="upload-zone" id="upload-zone">
-          <p>Drag &amp; drop images here, or click to browse</p>
-          <input type="file" id="image-file-input" multiple accept="image/*" hidden>
-        </div>
-        <div id="image-list" class="image-list" data-bike-id="{{ bike.id }}">
-          {% for image in images %}
-            <div
-              class="image-row{{ ' is-primary' if image.is_primary }}"
-              data-image-id="{{ image.id }}"
-            >
-              <span class="image-row__handle" draggable="true" title="Drag to reorder">&vArr;</span>
-              <img
-                src="/api/images/{{ bike.id }}/{{ image.thumb }}"
-                alt="{{ image.original_name }}"
-              >
-              <button
-                type="button"
-                class="image-row__primary"
-                data-image-id="{{ image.id }}"
-                title="Make primary"
-              >{{ '★' if image.is_primary else '☆' }}</button>
-              <button
-                type="button"
-                class="image-row__delete"
-                data-image-id="{{ image.id }}"
-                title="Delete image"
-              >&times;</button>
-            </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="upload-zone" id="upload-zone">
-          <p>Drag &amp; drop images here, or click to browse</p>
-          <input type="file" id="image-file-input" multiple accept="image/*" hidden>
-        </div>
-        <div id="image-list" class="image-list"></div>
-        <p class="pill-note">The first image becomes the primary photo — drag rows to reorder before saving.</p>
-      {% endif %}
     </div>
 
     <!-- Actions -->

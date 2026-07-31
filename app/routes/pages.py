@@ -114,7 +114,7 @@ async def bike_detail(request: Request, bike_id: int):
 
     # Fetch images
     ic = await db.execute(
-        "SELECT * FROM images WHERE bike_id = ? ORDER BY sort_order",
+        "SELECT * FROM images WHERE bike_id = ? ORDER BY is_primary DESC, sort_order",
         (bike_id,),
     )
     images = [dict(r) for r in await ic.fetchall()]
