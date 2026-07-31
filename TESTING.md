@@ -469,6 +469,30 @@ open http://127.0.0.1:8000/bikes/new
 
 ---
 
+## 19. Export all data as JSON
+
+```bash
+# Full export: nested bikes (pills, images, maintenance) + pill catalog
+curl -s http://127.0.0.1:8000/api/export -o bike_view.json
+python3 -m json.tool bike_view.json | head -40
+# The download header is set so browsers save the file
+curl -s -D - -o /dev/null http://127.0.0.1:8000/api/export | grep -i content-disposition
+```
+
+**Expected:** the JSON contains `exported_at`, `pills` (5 entries after seeding), and `bikes` — each bike with its `pills`, `images` (each with `url`/`thumb_url`), and `maintenance_records`. Header: `content-disposition: attachment; filename="bike_view.json"`.
+
+**Browser steps:**
+
+```bash
+open http://127.0.0.1:8000/
+```
+
+1. The "My Bikes" header shows a **Download JSON** button on the right.
+2. Clicking it downloads `bike_view.json` (no page navigation).
+3. Open the file — every bike's details, photos, and maintenance history are there, readable.
+
+---
+
 ## Stop the server
 
 Press `Ctrl+C` in the server terminal.
