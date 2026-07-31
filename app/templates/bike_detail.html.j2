@@ -54,7 +54,16 @@
       </div>
     {% endif %}
 
-    <a href="/bikes/{{ bike.id }}/edit" class="btn btn--primary">Edit Bike</a>
+    <div class="bike-detail__actions">
+      <a href="/bikes/{{ bike.id }}/edit" class="btn btn--primary">Edit Bike</a>
+      <button
+        type="button"
+        id="delete-bike-btn"
+        class="btn btn--danger"
+        data-bike-id="{{ bike.id }}"
+        data-bike-name="{{ bike.name }}"
+      >Delete Bike</button>
+    </div>
   </div>
 </div>
 
@@ -90,6 +99,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="/static/js/bike-delete.js"></script>
 <script src="/static/js/maintenance-form.js"></script>
 <script>
   (function() {

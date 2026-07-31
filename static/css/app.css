@@ -478,9 +478,11 @@ img {
   padding: 0.5rem 0;
 }
 
-.bike-detail__info .btn--primary {
-  align-self: flex-start;
+.bike-detail__actions {
+  display: flex;
+  gap: 0.75rem;
   margin-top: 0.5rem;
+  align-self: flex-start;
 }
 
 /* === Maintenance Section === */

@@ -391,6 +391,41 @@ open http://127.0.0.1:8000/bikes/1/edit
 
 ---
 
+## 17. Delete a bike (home grid + detail page)
+
+```bash
+open http://127.0.0.1:8000/
+```
+
+1. Click the × on a bike card — a confirm dialog appears naming the bike and noting that photos + maintenance history are removed too.
+2. Confirm — the card disappears from the grid with no page reload. Cancel — the card stays.
+3. Delete the last bike — the empty state appears ("No bikes yet. Add your first one." on `/`; the matching copy under `?status=active` / `?status=former`).
+4. On the detail page (`/bikes/<id>`): "Edit Bike" is now joined by a red "Delete Bike" button. Click it — confirm dialog → redirected to `/` and the bike is gone from the grid.
+
+```bash
+# Cascade + file cleanup: create a temp bike, upload a photo, delete it
+curl -s -X POST http://127.0.0.1:8000/api/bikes \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Temp Bike"}'   # note the id
+curl -s -X POST http://127.0.0.1:8000/api/bikes/<id>/images \
+  -F "files=@static/img/fixie-bike.jpg"
+ls uploads/bikes/<id>/
+curl -s -X DELETE http://127.0.0.1:8000/api/bikes/<id> -w "\nHTTP %{http_code}\n"
+curl -s http://127.0.0.1:8000/api/bikes/<id>
+ls uploads/bikes/<id>/
+```
+
+**Expected:** images upload (files on disk under `uploads/bikes/<id>/`); DELETE returns HTTP 204; GET returns 404 `{"detail":"Bike not found"}`; `uploads/bikes/<id>/` no longer exists (Phase 6 cleanup).
+
+```bash
+# Error path: delete an id that no longer exists
+curl -s -X DELETE http://127.0.0.1:8000/api/bikes/999 -w "\nHTTP %{http_code}\n"
+```
+
+**Expected:** HTTP 404 `{"detail":"Bike not found"}` — the UI surfaces this in the alert if a bike was already deleted in another tab.
+
+---
+
 ## Stop the server
 
 Press `Ctrl+C` in the server terminal.

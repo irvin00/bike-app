@@ -259,7 +259,13 @@ Each card in the grid:
 - Drag-and-drop upload zone (vanilla JS `drop` event + `FormData`)
 - Primary image selection, reorder, delete
 
-### Phase 7 — Polish
+### Phase 7 — Home Page Bike Delete ✅
+- Wire the card X button on the home grid and a Delete button on the bike
+  detail page to `DELETE /api/bikes/{id}` with a confirm dialog
+- Card removed from the grid in place (no reload); detail page redirects home
+- Empty state updates after the last bike is deleted
+
+### Phase 8 — Polish
 - Responsive grid (1 col mobile, 2 tablet, 3+ desktop) via CSS container queries
 - Transitions and hover states
 - Empty states and error banners
