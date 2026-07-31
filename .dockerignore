@@ -1,0 +1,17 @@
+# VCS / tooling
+.git
+.claude
+.pytest_cache
+
+# Python
+.venv
+__pycache__
+*.pyc
+
+# Runtime state — lives in volumes, not the image
+data
+uploads
+
+# OS
+.DS_Store
+BikeView.app
