@@ -10,6 +10,8 @@ dist/
 data/
 
 # Uploaded images
+# Exception: the seed bikes' images (uploads/bikes/{1,2}/*) are force-tracked
+# so a fresh clone renders the demo content — see git log for when they were added.
 uploads/
 
 # Environment

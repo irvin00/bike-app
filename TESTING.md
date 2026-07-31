@@ -353,12 +353,14 @@ curl -s -X PATCH http://127.0.0.1:8000/api/bikes/1/images/9999 \
 **Expected:** both HTTP 404 with `{"detail":"Image not found"}`.
 
 ```bash
-# Thumb fallback: seed bike 1 has no .thumb.jpg on disk — still serves
+# Seed images are tracked in uploads/ — both bikes serve full + thumb
 curl -s -o /dev/null -w "%{http_code}\n" \
   http://127.0.0.1:8000/api/images/1/carbon-race-bike.thumb.jpg
+curl -s -o /dev/null -w "%{http_code}\n" \
+  http://127.0.0.1:8000/api/images/2/fixie-bike.thumb.jpg
 ```
 
-**Expected:** `200` (serves the full-size `carbon-race-bike.jpg` as a fallback). Note: use GET, not `curl -I` — the route doesn't support HEAD.
+**Expected:** `200` for both (each seed bike has a real `.thumb.jpg` on disk — no fallback). Note: use GET, not `curl -I` — the route doesn't support HEAD.
 
 ```bash
 # Traversal attempts are rejected
@@ -398,7 +400,7 @@ open http://127.0.0.1:8000/bikes/1/edit
 5. Drag a row by its ⇕ handle to reorder — the order sticks after reloading the page.
 6. Click × on a row — confirm dialog; the row disappears; if it was primary, the first remaining row gets starred.
 7. `open http://127.0.0.1:8000/bikes/new` — the create form now shows the upload zone too: an empty image list, the note "The first image becomes the primary photo — drag rows to reorder before saving.", and no star buttons (create-mode upload is covered in §18).
-8. Home page + bike detail: seed bikes render their images (thumb fallback); the home card uses the thumbnail, the gallery opens full-size on click.
+8. Home page + bike detail: seed bikes render their images (full + thumbnail from uploads/); the home card uses the thumbnail, the gallery opens full-size on click.
 
 ---
 

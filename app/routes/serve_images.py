@@ -13,13 +13,5 @@ async def serve_image(bike_id: int, filename: str):
         raise HTTPException(status_code=404, detail="Image not found")
     filepath = UPLOADS_DIR / "bikes" / str(bike_id) / filename
     if not filepath.is_file():
-        # Thumb requested but absent (seed images, pre-Phase-6 uploads):
-        # fall back to the full-size file so nothing breaks — no migration.
-        if filename.endswith(".thumb.jpg"):
-            alt = UPLOADS_DIR / "bikes" / str(bike_id) / filename.replace(
-                ".thumb.jpg", ".jpg"
-            )
-            if alt.is_file():
-                return FileResponse(str(alt))
         raise HTTPException(status_code=404, detail="Image not found")
     return FileResponse(str(filepath))

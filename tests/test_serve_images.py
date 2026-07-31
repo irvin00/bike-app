@@ -1,4 +1,4 @@
-"""Image serving: FileResponse, thumb->full fallback, traversal rejection.
+"""Image serving: FileResponse, missing-file 404s, traversal rejection.
 
 serve_images is filesystem-only (no DB access), so fixture files are
 written straight into the tmp uploads dir — no Pillow processing needed.
@@ -28,11 +28,12 @@ async def test_serve_existing(client, uploads_dir):
     assert r.content == b"fake-jpeg-bytes"
 
 
-async def test_thumb_fallback(client, uploads_dir):
-    # Only the full-size file on disk; a .thumb.jpg request falls back to it.
+async def test_missing_thumb_404(client, uploads_dir):
+    # Only the full-size file on disk; a .thumb.jpg request must 404 —
+    # every stored image is expected to have a thumbnail (no fallback).
     await _write(uploads_dir, 1, "photo.jpg")
     r = await client.get("/api/images/1/photo.thumb.jpg")
-    assert r.status_code == 200
+    assert r.status_code == 404
 
 
 async def test_missing_404(client, uploads_dir):
