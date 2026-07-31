@@ -190,6 +190,57 @@ open http://127.0.0.1:8000/pills
 
 ---
 
+## 15. Home page status filter (UI)
+
+```bash
+# All (no filter) — shows both bikes
+curl -s http://127.0.0.1:8000/
+# Active only
+curl -s "http://127.0.0.1:8000/?status=active"
+# Former only
+curl -s "http://127.0.0.1:8000/?status=former"
+# Invalid status — falls back to showing all
+curl -s "http://127.0.0.1:8000/?status=bogus"
+```
+
+**Expected:** `/` lists both S-Works Tarmac SL8 and Surly Steamroller; `?status=active` lists only S-Works Tarmac SL8; `?status=former` lists only Surly Steamroller; `?status=bogus` lists both (invalid value ignored, like `/api/bikes`).
+
+```bash
+curl -s http://127.0.0.1:8000/ | grep -c 'class="bike-card"'
+curl -s "http://127.0.0.1:8000/?status=active" | grep -c 'class="bike-card"'
+curl -s "http://127.0.0.1:8000/?status=former" | grep -c 'class="bike-card"'
+```
+
+**Expected:** `2`, `1`, `1` (one `<article class="bike-card" ...>` per grid card).
+
+```bash
+curl -s http://127.0.0.1:8000/ | grep 'status-filter__btn'
+curl -s "http://127.0.0.1:8000/?status=active" | grep 'status-filter__btn'
+curl -s "http://127.0.0.1:8000/?status=former" | grep 'status-filter__btn'
+```
+
+**Expected:** exactly one link carries `active` in each output — "All", "Active", "Former" respectively.
+
+```bash
+# Filter is hidden on non-home pages
+curl -s http://127.0.0.1:8000/pills | grep -c 'status-filter'
+curl -s http://127.0.0.1:8000/bikes/new | grep -c 'status-filter'
+```
+
+**Expected:** `0`, `0`.
+
+```bash
+open http://127.0.0.1:8000/
+```
+
+1. Both bikes shown; "All" is highlighted; "Active" and "Former" are not.
+2. Click "Active" — grid shows only S-Works Tarmac SL8; "Active" highlighted.
+3. Click "Former" — grid shows only Surly Steamroller; "Former" highlighted.
+4. Browser Back returns to active-only, then to all (state lives in the URL).
+5. With an empty DB: unfiltered shows "No bikes yet. Add your first one."; Active shows "No active bikes."; Former shows "No former bikes."
+
+---
+
 ## Stop the server
 
 Press `Ctrl+C` in the server terminal.

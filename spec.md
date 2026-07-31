@@ -247,7 +247,7 @@ Each card in the grid:
 - `/pills` page: list, add form, delete buttons
 - Pill selector (multi-select checkboxes) on bike create/edit forms
 
-### Phase 5 — Home Page Status Filter
+### Phase 5 — Home Page Status Filter ✅
 - `/` route honors `?status=` query param (all / active / former), reusing the
   existing `/api/bikes?status=` filter support
 - Nav "All / Active / Former" buttons switch the filter on the home grid

@@ -1,17 +1,26 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
+from typing import Optional
 
 router = APIRouter(tags=["pages"])
 
 
 @router.get("/", response_class=HTMLResponse)
-async def home(request: Request):
+async def home(request: Request, status: Optional[str] = None):
     env = request.app.state.templates
     db = request.app.state.db
 
-    cursor = await db.execute(
-        "SELECT * FROM bikes ORDER BY created_at DESC"
-    )
+    status_filter = status if status in ("active", "former") else "all"
+
+    if status_filter == "all":
+        cursor = await db.execute(
+            "SELECT * FROM bikes ORDER BY created_at DESC"
+        )
+    else:
+        cursor = await db.execute(
+            "SELECT * FROM bikes WHERE status = ? ORDER BY created_at DESC",
+            (status_filter,),
+        )
     bikes = [dict(row) for row in await cursor.fetchall()]
 
     for bike in bikes:
@@ -35,7 +44,9 @@ async def home(request: Request):
         bike["primary_image"] = img["filename"] if img else None
 
     template = env.get_template("index.html.j2")
-    html = template.render(request=request, bikes=bikes)
+    html = template.render(
+        request=request, bikes=bikes, status_filter=status_filter
+    )
     return HTMLResponse(html)
 
 
@@ -48,7 +59,9 @@ async def pills_page(request: Request):
     pills = [dict(r) for r in await cursor.fetchall()]
 
     template = env.get_template("pills.html.j2")
-    html = template.render(request=request, pills=pills)
+    html = template.render(
+        request=request, pills=pills, show_status_filter=False
+    )
     return HTMLResponse(html)
 
 
@@ -65,6 +78,7 @@ async def bike_new(request: Request):
         request=request, mode="create",
         bike=None, all_pills=all_pills,
         bike_pills=None, images=None,
+        show_status_filter=False,
     )
     return HTMLResponse(html)
 
@@ -111,6 +125,7 @@ async def bike_detail(request: Request, bike_id: int):
     html = template.render(
         request=request, bike=bike, pills=pills,
         images=images, maintenance=maintenance,
+        show_status_filter=False,
     )
     return HTMLResponse(html)
 
@@ -155,5 +170,6 @@ async def bike_edit(request: Request, bike_id: int):
         request=request, mode="edit",
         bike=bike, all_pills=all_pills,
         bike_pills=bike_pills, images=images,
+        show_status_filter=False,
     )
     return HTMLResponse(html)

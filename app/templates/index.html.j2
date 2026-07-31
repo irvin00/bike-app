@@ -11,7 +11,9 @@
   {% endfor %}
 </div>
 
-<p id="empty-state" class="empty-state" style="display: none;">
-  No bikes yet. <a href="/bikes/new">Add your first one</a>.
+<p id="empty-state" class="empty-state" {% if bikes %}style="display: none;"{% endif %}>
+  {% if status_filter|default('all') == "active" %}No active bikes.
+  {% elif status_filter|default('all') == "former" %}No former bikes.
+  {% else %}No bikes yet. <a href="/bikes/new">Add your first one</a>.{% endif %}
 </p>
 {% endblock %}

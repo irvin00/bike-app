@@ -12,11 +12,14 @@
     <div class="container">
       <a href="/" class="nav__title">Bike View</a>
       <div class="nav__actions">
+        {% if show_status_filter|default(true) %}
         <div class="status-filter">
-          <button class="status-filter__btn active" data-status="all">All</button>
-          <button class="status-filter__btn" data-status="active">Active</button>
-          <button class="status-filter__btn" data-status="former">Former</button>
+          {% set current = status_filter|default('all') %}
+          <a href="/" class="status-filter__btn{{ ' active' if current == 'all' }}">All</a>
+          <a href="/?status=active" class="status-filter__btn{{ ' active' if current == 'active' }}">Active</a>
+          <a href="/?status=former" class="status-filter__btn{{ ' active' if current == 'former' }}">Former</a>
         </div>
+        {% endif %}
         <a href="/bikes/new" class="btn btn--primary">+ Add Bike</a>
         <a href="/pills" class="btn btn--ghost">Pills</a>
       </div>
