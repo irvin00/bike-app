@@ -265,6 +265,14 @@ Each card in the grid:
 - Card removed from the grid in place (no reload); detail page redirects home
 - Empty state updates after the last bike is deleted
 
+### Phase 7.5 — Image Upload on Bike Creation ✅
+- `/bikes/new` gets the drag-and-drop upload zone with client-side pending
+  previews (no star button — reorder order determines primary)
+- Images upload to `/api/bikes/{id}/images` after the bike is created, before
+  redirect; failures alert and still redirect
+- Create flow guards against double-submit; pills/image failures are
+  best-effort with distinct alerts
+
 ### Phase 8 — Polish
 - Responsive grid (1 col mobile, 2 tablet, 3+ desktop) via CSS container queries
 - Transitions and hover states

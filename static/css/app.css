@@ -891,6 +891,12 @@ img {
   transition: color 0.15s, background 0.15s;
 }
 
+/* Pending rows (create form) have no star button — keep the delete
+   button right-aligned like the star pushes it in edit mode. */
+.image-row.is-pending .image-row__delete {
+  margin-left: auto;
+}
+
 .image-row__delete:hover {
   color: var(--color-danger);
   background: #fef2f2;

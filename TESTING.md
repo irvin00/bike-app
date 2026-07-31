@@ -386,7 +386,7 @@ open http://127.0.0.1:8000/bikes/1/edit
 4. Click the ☆ on a row — it becomes a gold ★ and the previous primary's star resets to ☆.
 5. Drag a row by its ⇕ handle to reorder — the order sticks after reloading the page.
 6. Click × on a row — confirm dialog; the row disappears; if it was primary, the first remaining row gets starred.
-7. `open http://127.0.0.1:8000/bikes/new` — the create form shows "Add photos after saving — use Edit on the bike's page." instead of the upload zone.
+7. `open http://127.0.0.1:8000/bikes/new` — the create form now shows the upload zone too: an empty image list, the note "The first image becomes the primary photo — drag rows to reorder before saving.", and no star buttons (create-mode upload is covered in §18).
 8. Home page + bike detail: seed bikes render their images (thumb fallback); the home card uses the thumbnail, the gallery opens full-size on click.
 
 ---
@@ -423,6 +423,36 @@ curl -s -X DELETE http://127.0.0.1:8000/api/bikes/999 -w "\nHTTP %{http_code}\n"
 ```
 
 **Expected:** HTTP 404 `{"detail":"Bike not found"}` — the UI surfaces this in the alert if a bike was already deleted in another tab.
+
+---
+
+## 18. Image upload on bike creation
+
+```bash
+# The create form now renders the upload zone; its list carries NO data-bike-id
+curl -s http://127.0.0.1:8000/bikes/new | grep -c 'id="upload-zone"'
+curl -s http://127.0.0.1:8000/bikes/new | grep -o 'data-bike-id'
+curl -s http://127.0.0.1:8000/bikes/new | grep -o 'first image becomes the primary'
+# Edit form regression: still carries the bike id (the mode signal)
+curl -s http://127.0.0.1:8000/bikes/1/edit | grep -o 'data-bike-id="1"'
+```
+
+**Expected:** `1` (upload zone present), no match for `data-bike-id` (create-mode signal), the note text present, and `data-bike-id="1"` on the edit form.
+
+**Browser steps:**
+
+```bash
+open http://127.0.0.1:8000/bikes/new
+```
+
+1. Drop two images onto the zone — two pending rows appear with thumbnails (no page reload), each with a drag handle and an ×. No ★/☆ buttons in create mode.
+2. Drag the second row above the first via its handle. Watch the Network tab: no requests fire during create-mode reorder (nothing has been uploaded yet).
+3. Click × on a row — confirm dialog; the row disappears (still no network request).
+4. Add another image, fill in the name, submit. Network tab shows the sequence POST `/api/bikes` → PUT `/api/bikes/<id>/pills` → POST `/api/bikes/<id>/images`. The page lands on `/bikes/<id>` and the gallery shows the images.
+5. Back on the home page — the card shows the image that was the top row at save time (the first uploaded image becomes primary).
+6. Edit the bike — all images are there as real rows with stars.
+7. Error path: on a new create form, drop a non-image file (e.g. a `.txt`) and submit with a valid name. Alert: "Bike created, but image upload failed: … not an image file" — but the page still redirects to the new bike's detail page showing "No images yet" (the bike was created; add photos via Edit).
+8. Double-click "Add Bike" quickly — only one bike is created (the button disables during the create flow).
 
 ---
 

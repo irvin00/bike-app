@@ -116,7 +116,12 @@
           {% endfor %}
         </div>
       {% else %}
-        <p class="pill-note">Add photos after saving — use Edit on the bike's page.</p>
+        <div class="upload-zone" id="upload-zone">
+          <p>Drag &amp; drop images here, or click to browse</p>
+          <input type="file" id="image-file-input" multiple accept="image/*" hidden>
+        </div>
+        <div id="image-list" class="image-list"></div>
+        <p class="pill-note">The first image becomes the primary photo — drag rows to reorder before saving.</p>
       {% endif %}
     </div>
 
@@ -137,6 +142,9 @@
 {% block scripts %}
 <script src="/static/js/image-upload.js"></script>
 <script>
+  const submitBtn = document.querySelector('#bike-form button[type="submit"]');
+  let submitting = false; // guards the multi-step create flow against double-submit
+
   document.getElementById('bike-form').addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -152,13 +160,33 @@
     const pillIds = formData.getAll('pill_ids').map(Number);
 
     {% if mode == 'create' %}
+    if (submitting) return;
+    submitting = true;
+    submitBtn.disabled = true;
     try {
       const bike = await api.post('/api/bikes', data);
+      // Post-create steps are best-effort: the bike exists, so alert and
+      // still redirect rather than strand the user on the form (a resubmit
+      // would create a duplicate bike).
       if (pillIds.length > 0) {
-        await api.put('/api/bikes/' + bike.id + '/pills', { pill_ids: pillIds });
+        try {
+          await api.put('/api/bikes/' + bike.id + '/pills', { pill_ids: pillIds });
+        } catch (err) {
+          alert('Bike created, but pills failed to save: ' + err.message);
+        }
+      }
+      if (window.BikeImages && window.BikeImages.hasPending()) {
+        try {
+          await window.BikeImages.uploadPending(bike.id);
+        } catch (err) {
+          alert('Bike created, but image upload failed: ' + err.message + ' (add them via Edit)');
+        }
       }
       window.location.href = '/bikes/' + bike.id;
     } catch (err) {
+      // Only the create POST failing leaves the user on the form.
+      submitting = false;
+      submitBtn.disabled = false;
       alert('Failed to create bike: ' + err.message);
     }
     {% else %}
