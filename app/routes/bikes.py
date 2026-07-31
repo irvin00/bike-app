@@ -2,6 +2,8 @@ from fastapi import APIRouter, Request, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 
+from app.image_store import image_store, thumb_filename
+
 router = APIRouter(prefix="/api/bikes", tags=["bikes"])
 
 
@@ -57,6 +59,26 @@ async def _bike_with_pills(db, row: dict | None) -> dict | None:
     return await _attach_pills(db, row)
 
 
+def _serialize_image(row: dict, bike_id: int) -> dict:
+    return {
+        **row,
+        "url": f"/api/images/{bike_id}/{row['filename']}",
+        "thumb_url": f"/api/images/{bike_id}/{thumb_filename(row['filename'])}",
+    }
+
+
+async def _attach_primary_image(db, bike: dict) -> dict:
+    row = await _fetchone(db,
+        "SELECT filename FROM images WHERE bike_id = ? AND is_primary = 1 LIMIT 1",
+        (bike["id"],),
+    )
+    bike["primary_image"] = row["filename"] if row else None
+    bike["primary_thumb"] = (
+        thumb_filename(bike["primary_image"]) if bike["primary_image"] else None
+    )
+    return bike
+
+
 @router.get("")
 async def list_bikes(request: Request, status: Optional[str] = None):
     db = request.app.state.db
@@ -69,7 +91,8 @@ async def list_bikes(request: Request, status: Optional[str] = None):
         rows = await _fetchall(db,
             "SELECT * FROM bikes ORDER BY created_at DESC"
         )
-    return [await _bike_with_pills(db, row) for row in rows]
+    bikes = [await _bike_with_pills(db, row) for row in rows]
+    return [await _attach_primary_image(db, bike) for bike in bikes]
 
 
 @router.get("/{bike_id}")
@@ -80,7 +103,13 @@ async def get_bike(request: Request, bike_id: int):
     )
     if row is None:
         raise HTTPException(status_code=404, detail="Bike not found")
-    return await _bike_with_pills(db, row)
+    bike = await _bike_with_pills(db, row)
+    images = await _fetchall(db,
+        "SELECT * FROM images WHERE bike_id = ? ORDER BY sort_order, id",
+        (bike_id,),
+    )
+    bike["images"] = [_serialize_image(r, bike_id) for r in images]
+    return bike
 
 
 @router.post("", status_code=201)
@@ -140,3 +169,5 @@ async def delete_bike(request: Request, bike_id: int):
     if cursor.rowcount == 0:
         raise HTTPException(status_code=404, detail="Bike not found")
     await db.commit()
+    # DB rows cascade; remove the orphaned files from disk.
+    image_store.delete_bike_dir(bike_id)

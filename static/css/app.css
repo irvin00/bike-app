@@ -800,19 +800,102 @@ img {
   margin-top: 0.5rem;
 }
 
-/* Image List (Edit Form) */
-.image-list {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+/* Image Upload (Edit Form) */
+.upload-zone {
+  border: 2px dashed var(--color-border);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  margin-bottom: 0.75rem;
 }
 
-.image-list__thumb {
-  width: 100px;
-  height: 75px;
+.upload-zone:hover {
+  border-color: var(--color-accent);
+}
+
+.upload-zone.dragover {
+  border-color: var(--color-accent);
+  background: #eff6ff;
+}
+
+.image-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.image-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.image-row img {
+  width: 64px;
+  height: 48px;
   object-fit: cover;
   border-radius: 6px;
-  border: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.image-row__handle {
+  cursor: grab;
+  color: var(--color-text-muted);
+  user-select: none;
+}
+
+.image-row__handle:active {
+  cursor: grabbing;
+}
+
+.image-row__primary {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+  margin-left: auto;
+}
+
+.image-row__primary:hover {
+  color: var(--color-accent);
+  background: #eff6ff;
+}
+
+.image-row.is-primary .image-row__primary {
+  color: #d97706;
+}
+
+.image-row__delete {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.image-row__delete:hover {
+  color: var(--color-danger);
+  background: #fef2f2;
+}
+
+.image-row.dragging {
+  opacity: 0.4;
 }
 
 /* === Empty Gallery State === */

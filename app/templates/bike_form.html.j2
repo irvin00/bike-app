@@ -81,21 +81,44 @@
       </div>
     </div>
 
-    <!-- Existing Images (edit mode only) -->
-    {% if mode == 'edit' and images %}
-      <div class="form-field">
-        <label>Images</label>
-        <div class="image-list">
+    <!-- Images -->
+    <div class="form-field">
+      <label>Images</label>
+      {% if mode == 'edit' %}
+        <div class="upload-zone" id="upload-zone">
+          <p>Drag &amp; drop images here, or click to browse</p>
+          <input type="file" id="image-file-input" multiple accept="image/*" hidden>
+        </div>
+        <div id="image-list" class="image-list" data-bike-id="{{ bike.id }}">
           {% for image in images %}
-            <img
-              src="/api/images/{{ bike.id }}/{{ image.filename }}"
-              alt="{{ image.original_name }}"
-              class="image-list__thumb"
+            <div
+              class="image-row{{ ' is-primary' if image.is_primary }}"
+              data-image-id="{{ image.id }}"
             >
+              <span class="image-row__handle" draggable="true" title="Drag to reorder">&vArr;</span>
+              <img
+                src="/api/images/{{ bike.id }}/{{ image.thumb }}"
+                alt="{{ image.original_name }}"
+              >
+              <button
+                type="button"
+                class="image-row__primary"
+                data-image-id="{{ image.id }}"
+                title="Make primary"
+              >{{ '★' if image.is_primary else '☆' }}</button>
+              <button
+                type="button"
+                class="image-row__delete"
+                data-image-id="{{ image.id }}"
+                title="Delete image"
+              >&times;</button>
+            </div>
           {% endfor %}
         </div>
-      </div>
-    {% endif %}
+      {% else %}
+        <p class="pill-note">Add photos after saving — use Edit on the bike's page.</p>
+      {% endif %}
+    </div>
 
     <!-- Actions -->
     <div class="form-actions">
@@ -112,6 +135,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="/static/js/image-upload.js"></script>
 <script>
   document.getElementById('bike-form').addEventListener('submit', async function(e) {
     e.preventDefault();

@@ -10,7 +10,7 @@
       <div class="gallery">
         {% for image in images %}
           <img
-            src="/api/images/{{ bike.id }}/{{ image.filename }}"
+            src="/api/images/{{ bike.id }}/{{ image.thumb }}"
             alt="{{ bike.name }}"
             class="gallery__image"
             data-full-src="/api/images/{{ bike.id }}/{{ image.filename }}"

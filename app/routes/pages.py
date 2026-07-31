@@ -2,6 +2,8 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from typing import Optional
 
+from app.image_store import thumb_filename
+
 router = APIRouter(tags=["pages"])
 
 
@@ -42,6 +44,9 @@ async def home(request: Request, status: Optional[str] = None):
         )
         img = await ic.fetchone()
         bike["primary_image"] = img["filename"] if img else None
+        bike["primary_thumb"] = (
+            thumb_filename(bike["primary_image"]) if bike["primary_image"] else None
+        )
 
     template = env.get_template("index.html.j2")
     html = template.render(
@@ -113,6 +118,8 @@ async def bike_detail(request: Request, bike_id: int):
         (bike_id,),
     )
     images = [dict(r) for r in await ic.fetchall()]
+    for image in images:
+        image["thumb"] = thumb_filename(image["filename"])
 
     # Fetch maintenance records
     mc = await db.execute(
@@ -164,6 +171,8 @@ async def bike_edit(request: Request, bike_id: int):
         (bike_id,),
     )
     images = [dict(r) for r in await ic.fetchall()]
+    for image in images:
+        image["thumb"] = thumb_filename(image["filename"])
 
     template = env.get_template("bike_form.html.j2")
     html = template.render(

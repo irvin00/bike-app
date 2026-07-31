@@ -2,7 +2,7 @@
   <a href="/bikes/{{ bike.id }}" class="bike-card__image-link">
     {% if bike.primary_image %}
       <img
-        src="/api/images/{{ bike.id }}/{{ bike.primary_image }}"
+        src="/api/images/{{ bike.id }}/{{ bike.primary_thumb }}"
         alt="{{ bike.name }}"
         class="bike-card__image"
       >

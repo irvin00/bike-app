@@ -253,7 +253,7 @@ Each card in the grid:
 - Nav "All / Active / Former" buttons switch the filter on the home grid
 - Active filter button is highlighted to reflect the current selection
 
-### Phase 6 — Image Upload
+### Phase 6 — Image Upload ✅
 - Multipart upload endpoint (FastAPI `UploadFile`)
 - Image resizing + thumbnail with Pillow
 - Drag-and-drop upload zone (vanilla JS `drop` event + `FormData`)
