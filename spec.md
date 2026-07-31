@@ -281,13 +281,13 @@ Each card in the grid:
 - Smooth scroll to the next/prev slide via target-image offsetLeft
   (lands on snap points)
 
-### Phase 8 — Polish
-- Responsive grid (1 col mobile, 2 tablet, 3+ desktop) via CSS container queries
-- Transitions and hover states
-- Empty states and error banners
-- Confirm dialogs for delete actions (vanilla JS `<dialog>`)
-- Loading spinners (CSS animation on fetch calls)
-- Unit tests with pytest + httpx (ASGITransport) for all API routes
+### Phase 8 — Polish ✅
+- Responsive grid (1 col mobile, 2 tablet, 3+ desktop) via CSS container queries ✅
+- Transitions and hover states ✅
+- Empty states and error banners ✅
+- Confirm dialogs for delete actions (vanilla JS `<dialog>`) ✅
+- Loading spinners (CSS animation on fetch calls) ✅
+- Unit tests with pytest + httpx (ASGITransport) for all API routes ✅
 
 ---
 
@@ -332,13 +332,26 @@ bike_view/
 │   ├── css/
 │   │   └── app.css                  ← all styles, CSS variables for tokens
 │   ├── js/
+│   │   ├── api.js                   ← tiny fetch wrapper + global in-flight spinner
+│   │   ├── ui.js                    ← error banner (showError)
 │   │   ├── inline-edit.js           ← click-to-edit headline
 │   │   ├── image-upload.js          ← drag-and-drop + preview + FormData
 │   │   ├── maintenance-form.js      ← inline add/edit via fetch
-│   │   ├── confirm-dialog.js        ← <dialog> open/close + confirm hook
-│   │   └── api.js                   ← tiny fetch wrapper (JSON headers, error handling)
+│   │   ├── bike-delete.js           ← home/detail delete flows
+│   │   ├── gallery-nav.js           ← gallery prev/next arrows
+│   │   ├── pills.js                 ← pill page CRUD
+│   │   └── confirm-dialog.js        ← <dialog> open/close + confirm hook
 │   └── img/
 │       └── placeholder-bike.svg     ← fallback image
+├── tests/
+│   ├── fixtures.py                  ← tmp DB/uploads patches + seeded ASGI client
+│   ├── test_bikes.py
+│   ├── test_pills.py
+│   ├── test_maintenance.py
+│   ├── test_bike_pills.py
+│   ├── test_images.py
+│   ├── test_serve_images.py
+│   └── test_pages.py
 ```
 
 ---

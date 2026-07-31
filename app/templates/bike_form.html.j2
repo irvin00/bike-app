@@ -172,14 +172,14 @@
         try {
           await api.put('/api/bikes/' + bike.id + '/pills', { pill_ids: pillIds });
         } catch (err) {
-          alert('Bike created, but pills failed to save: ' + err.message);
+          showError('Bike created, but pills failed to save: ' + err.message);
         }
       }
       if (window.BikeImages && window.BikeImages.hasPending()) {
         try {
           await window.BikeImages.uploadPending(bike.id);
         } catch (err) {
-          alert('Bike created, but image upload failed: ' + err.message + ' (add them via Edit)');
+          showError('Bike created, but image upload failed: ' + err.message + ' (add them via Edit)');
         }
       }
       window.location.href = '/bikes/' + bike.id;
@@ -187,15 +187,20 @@
       // Only the create POST failing leaves the user on the form.
       submitting = false;
       submitBtn.disabled = false;
-      alert('Failed to create bike: ' + err.message);
+      showError('Failed to create bike: ' + err.message);
     }
     {% else %}
+    if (submitting) return; // same double-submit guard as the create branch
+    submitting = true;
+    submitBtn.disabled = true;
     try {
       await api.patch('/api/bikes/{{ bike.id }}', data);
       await api.put('/api/bikes/{{ bike.id }}/pills', { pill_ids: pillIds });
       window.location.href = '/bikes/{{ bike.id }}';
     } catch (err) {
-      alert('Failed to save bike: ' + err.message);
+      submitting = false;
+      submitBtn.disabled = false;
+      showError('Failed to save bike: ' + err.message);
     }
     {% endif %}
   });

@@ -48,6 +48,8 @@ img {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
+  container-type: inline-size;
+  container-name: page;
 }
 
 /* === Nav === */
@@ -69,6 +71,11 @@ img {
 .nav__title {
   font-size: 1.25rem;
   font-weight: 700;
+  transition: color 0.15s;
+}
+
+.nav__title:hover {
+  color: var(--color-accent);
 }
 
 .nav__actions {
@@ -160,6 +167,23 @@ img {
   background: var(--color-border);
 }
 
+/* === Focus States === */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Bare inputs on the maintenance/pills forms mirror the .form-field
+   focus treatment (border + ring instead of outline). */
+.maintenance-form input:focus,
+.maintenance-record__edit-form input:focus,
+.pill-form input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
 /* === Card Grid === */
 .bike-grid {
   display: grid;
@@ -168,13 +192,15 @@ img {
   padding-bottom: 3rem;
 }
 
-@media (max-width: 900px) {
+/* Container breakpoints compensate for the .container's 2x1rem padding so
+   behavior matches the old 900px / 600px viewport media queries exactly. */
+@container page (max-width: 868px) {
   .bike-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 600px) {
+@container page (max-width: 568px) {
   .bike-grid {
     grid-template-columns: 1fr;
   }
@@ -276,6 +302,13 @@ img {
   padding: 0.15rem 0.55rem;
   border-radius: var(--radius-pill);
   white-space: nowrap;
+  /* transform/opacity only: the badge's background is an inline style */
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+.pill-badge:hover {
+  transform: translateY(-1px);
+  opacity: 0.92;
 }
 
 /* === Card Footer === */
@@ -342,6 +375,7 @@ img {
   color: var(--color-text-muted);
   font-size: 0.875rem;
   padding: 1rem 0;
+  transition: color 0.15s;
 }
 
 .back-link::before {
@@ -610,6 +644,11 @@ img {
   border-radius: 8px;
   margin-bottom: 0.75rem;
   box-shadow: var(--shadow-card);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.maintenance-record:hover {
+  box-shadow: var(--shadow-card-hover);
 }
 
 .maintenance-record::before {
@@ -884,6 +923,11 @@ img {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 8px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.image-row:hover {
+  border-color: var(--color-accent);
 }
 
 .image-row img {
@@ -1016,6 +1060,11 @@ img {
   border-radius: 8px;
   margin-bottom: 0.5rem;
   box-shadow: var(--shadow-card);
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.pill-row:hover {
+  background: var(--color-bg);
 }
 
 .pill-swatch {
@@ -1045,4 +1094,88 @@ img {
 .pill-row__delete:hover {
   color: var(--color-danger);
   background: #fef2f2;
+}
+
+/* === Error Banner === */
+.banner {
+  position: fixed;
+  top: 4.25rem; /* clears the sticky nav (~61px) */
+  left: 50%;
+  transform: translate(-50%, -0.5rem);
+  max-width: min(520px, calc(100vw - 2rem));
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  background: var(--color-danger);
+  color: #fff;
+  border-radius: 8px;
+  box-shadow: var(--shadow-card-hover);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+  z-index: 200; /* above the lightbox modal (z-index 100) and nav (10) */
+}
+
+.banner--visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+.banner__close {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.1rem 0.2rem;
+}
+
+/* === Confirm Dialog === */
+.confirm-dialog {
+  border: none;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card-hover);
+  padding: 0;
+  width: min(360px, calc(100vw - 2rem));
+  margin: auto;
+}
+
+.confirm-dialog::backdrop {
+  background: rgba(17, 24, 39, 0.5);
+}
+
+.confirm-dialog__body {
+  padding: 1.25rem;
+}
+
+.confirm-dialog__message {
+  margin-bottom: 1rem;
+}
+
+.confirm-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* === Fetch Spinner === */
+.fetch-spinner {
+  position: fixed;
+  top: 4.25rem;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  z-index: 200;
+}
+
+@keyframes spin {
+  from { transform: translateX(-50%) rotate(0); } /* keep it centered: the */
+  to { transform: translateX(-50%) rotate(1turn); } /* keyframe transform IS the centering */
 }

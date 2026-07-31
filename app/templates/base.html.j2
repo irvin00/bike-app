@@ -30,7 +30,11 @@
     {% block content %}{% endblock %}
   </main>
 
+  {% include "partials/confirm_dialog.html.j2" %}
+
   <script src="/static/js/api.js"></script>
+  <script src="/static/js/ui.js"></script>
+  <script src="/static/js/confirm-dialog.js"></script>
   <script src="/static/js/inline-edit.js"></script>
   {% block scripts %}{% endblock %}
 </body>

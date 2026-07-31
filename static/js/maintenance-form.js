@@ -82,7 +82,7 @@
     };
 
     if (!data.date || !data.description) {
-      alert('Date and description are required.');
+      showError('Date and description are required.');
       return;
     }
 
@@ -93,7 +93,7 @@
       addForm.classList.add('maintenance-form--hidden');
       updateHeaderCount(1);
     } catch (err) {
-      alert('Failed to add record: ' + err.message);
+      showError('Failed to add record: ' + err.message);
     }
   });
 
@@ -143,7 +143,7 @@
       };
 
       if (!data.date || !data.description) {
-        alert('Date and description are required.');
+        showError('Date and description are required.');
         return;
       }
 
@@ -154,7 +154,7 @@
         const newEl = createRecordEl(updated);
         recordEl.replaceWith(newEl);
       } catch (err) {
-        alert('Failed to save: ' + err.message);
+        showError('Failed to save: ' + err.message);
       }
       return;
     }
@@ -187,14 +187,14 @@
       const recordEl = delBtn.closest('.maintenance-record');
       const recordId = delBtn.dataset.recordId;
 
-      if (!confirm('Delete this maintenance record?')) return;
+      if (!(await confirmDialog('Delete this maintenance record?'))) return;
 
       try {
         await api.del('/api/bikes/' + bikeId + '/maintenance/' + recordId);
         recordEl.remove();
         updateHeaderCount(-1);
       } catch (err) {
-        alert('Failed to delete: ' + err.message);
+        showError('Failed to delete: ' + err.message);
       }
     }
   });

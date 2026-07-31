@@ -1,5 +1,16 @@
 # Bike View — API Test Instructions
 
+## Automated tests
+
+```bash
+cd /Users/irvinsamuel/Desktop/bike_view
+uv run pytest
+```
+
+Runs the full pytest suite (tests/): all API routes + page smoke tests, with
+a tmp DB and tmp uploads dir (the real `data/` and `uploads/` are never
+touched). The manual curls below remain the browser-behavior checklist.
+
 ## Prerequisites
 
 ```bash

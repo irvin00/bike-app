@@ -9,12 +9,13 @@
   if (!grid && !detailBtn) return;
 
   async function deleteBike(id, name, onSuccess) {
-    if (!confirm('Delete "' + name + '"? This also removes its photos and maintenance history.')) return;
+    const ok = await confirmDialog('Delete "' + name + '"? This also removes its photos and maintenance history.');
+    if (!ok) return;
     try {
       await api.del('/api/bikes/' + id); // api.del surfaces the server 404 detail
       onSuccess();
     } catch (err) {
-      alert('Failed to delete bike: ' + err.message);
+      showError('Failed to delete bike: ' + err.message);
     }
   }
 

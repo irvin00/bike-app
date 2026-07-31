@@ -111,7 +111,7 @@
         list.appendChild(createRowEl(img));
       });
     } catch (err) {
-      alert('Upload failed: ' + err.message);
+      showError('Upload failed: ' + err.message);
     }
   }
 
@@ -154,7 +154,7 @@
         );
         starRow(row); // server response confirms; unstar the old primary locally
       } catch (err) {
-        alert('Failed to set primary: ' + err.message);
+        showError('Failed to set primary: ' + err.message);
       }
       return;
     }
@@ -162,7 +162,7 @@
     const delBtn = e.target.closest('.image-row__delete');
     if (!delBtn) return;
 
-    if (!confirm('Delete this image?')) return;
+    if (!(await confirmDialog('Delete this image?'))) return;
 
     const row = delBtn.closest('.image-row');
 
@@ -187,7 +187,7 @@
         if (first) starRow(first);
       }
     } catch (err) {
-      alert('Failed to delete: ' + err.message);
+      showError('Failed to delete: ' + err.message);
     }
   });
 
@@ -246,7 +246,7 @@
     try {
       await Promise.all(patches);
     } catch (err) {
-      alert('Failed to save order: ' + err.message);
+      showError('Failed to save order: ' + err.message);
       try {
         const bike = await api.get('/api/bikes/' + bikeId);
         renderFromApi(bike);

@@ -47,7 +47,7 @@
     const color = addForm.querySelector('[name="color"]').value;
 
     if (!label) {
-      alert('Label is required.');
+      showError('Label is required.');
       return;
     }
 
@@ -55,7 +55,7 @@
     const exists = Array.from(list.querySelectorAll('.pill-row__label'))
       .some(function (el) { return el.textContent === label; });
     if (exists) {
-      alert('A pill with this label already exists.');
+      showError('A pill with this label already exists.');
       return;
     }
 
@@ -73,7 +73,7 @@
       addForm.reset();
       updateEmptyState();
     } catch (err) {
-      alert('Failed to add pill: ' + err.message);
+      showError('Failed to add pill: ' + err.message);
     }
   });
 
@@ -83,7 +83,7 @@
     const delBtn = e.target.closest('.pill-row__delete');
     if (!delBtn) return;
 
-    if (!confirm('Delete this pill? It will be removed from all bikes.')) return;
+    if (!(await confirmDialog('Delete this pill? It will be removed from all bikes.'))) return;
 
     const row = delBtn.closest('.pill-row');
     try {
@@ -91,7 +91,7 @@
       row.remove();
       updateEmptyState();
     } catch (err) {
-      alert('Failed to delete: ' + err.message);
+      showError('Failed to delete: ' + err.message);
     }
   });
 })();
