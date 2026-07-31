@@ -17,7 +17,7 @@ UPLOADS_DIR = Path(__file__).parent.parent / "uploads"
 
 MAX_IMAGE_BYTES = 25 * 1024 * 1024  # raw encoded bytes per upload
 MAX_DIMENSION = 2000  # spec §5: resize to max 2000px on the long edge
-THUMB_DIMENSION = 400  # spec §5: card thumbnail
+THUMB_DIMENSION = 1024  # spec §5: thumbnail
 
 
 def thumb_filename(filename: str) -> str:

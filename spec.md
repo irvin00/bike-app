@@ -206,7 +206,7 @@ Each card in the grid:
 - A FastAPI route serves images: `/api/images/{bike_id}/{filename}`.
   This lets us add auth or access control later without changing URLs.
 - Image processing on upload: resize to max 2000px wide via Pillow, generate a
-  400px thumbnail for cards.
+  1024px thumbnail for cards and the gallery.
 
 ### Phase 2 — Cloud (future)
 
