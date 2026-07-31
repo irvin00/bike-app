@@ -289,6 +289,30 @@ Each card in the grid:
 - Loading spinners (CSS animation on fetch calls) ✅
 - Unit tests with pytest + httpx (ASGITransport) for all API routes ✅
 
+### Phase 9 — Settings & Data Management (V2 follow-up)
+- Settings button (gear icon) in the nav bar opens a slide-in sidebar drawer
+  (vanilla JS, same overlay pattern as the confirm dialogs)
+- Sidebar lists settings sections; extensible to future options (Appearance,
+  About, …). "Data" navigates to `/settings/data`, a full-page settings
+  template reusing `base.html.j2`
+- Data settings page, two blocks:
+  - **Export** — button downloads `GET /api/export` → `bike_view.json`
+    (Content-Disposition attachment; nested shape: bikes with pills, images
+    with url/thumb_url, maintenance records, plus the pill catalog) — shipped
+  - **Import** — file picker for a `bike_view.json` export → `POST /api/import`
+    (multipart upload); server validates the export shape and restores it
+- Import semantics (v1): full restore — existing rows are deleted, then
+  bikes, pills, bike_pills, maintenance_records, and images are inserted from
+  the JSON; destructive action requires a confirm dialog; the response
+  summarizes restored counts (bikes, pills, images, maintenance)
+- Image files: the export holds filenames + URLs, not file bytes — restored
+  image rows render only when `uploads/` is present (copy the folder alongside
+  the JSON; a future zip bundle may embed images); missing files fall back to
+  the placeholder instead of erroring
+- Pill catalog inserts are idempotent (INSERT OR IGNORE on unique label)
+- Validation is all-or-nothing: the whole file must validate (missing keys,
+  wrong types) before anything is written — 422 with a clear message otherwise
+
 ---
 
 ## 7. Project File Structure
@@ -371,9 +395,7 @@ bike_view/
 
 Features explicitly deferred to a future version:
 
-1. **JSON export** — One-click "export all data" as JSON. (SQLite makes the DB
-   file easy to copy manually, but a structured JSON export would be more
-   portable.)
+1. **JSON export** — ✅ Shipped in Phase 9.
 
 2. **Search & text/pill filter** — Full-text search across bike names and
    descriptions, plus filtering by attached pills on the home page.
