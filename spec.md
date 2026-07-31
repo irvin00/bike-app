@@ -273,6 +273,14 @@ Each card in the grid:
 - Create flow guards against double-submit; pills/image failures are
   best-effort with distinct alerts
 
+### Phase 7.6 — Gallery Nav Arrows ✅
+- Prev/next arrow buttons overlaid on the bike detail image gallery; slides
+  fill the gallery (one full-width image per view, no next-image preview),
+  arrows render only when the bike has more than one image
+- Arrows disabled at the strip's ends; state updates on scroll/resize
+- Smooth scroll to the next/prev slide via target-image offsetLeft
+  (lands on snap points)
+
 ### Phase 8 — Polish
 - Responsive grid (1 col mobile, 2 tablet, 3+ desktop) via CSS container queries
 - Transitions and hover states

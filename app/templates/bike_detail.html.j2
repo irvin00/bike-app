@@ -7,15 +7,34 @@
   <!-- LEFT: Image Gallery -->
   <div class="bike-detail__gallery">
     {% if images %}
-      <div class="gallery">
-        {% for image in images %}
-          <img
-            src="/api/images/{{ bike.id }}/{{ image.thumb }}"
-            alt="{{ bike.name }}"
-            class="gallery__image"
-            data-full-src="/api/images/{{ bike.id }}/{{ image.filename }}"
+      <div class="gallery-nav">
+        <div class="gallery">
+          {% for image in images %}
+            <img
+              src="/api/images/{{ bike.id }}/{{ image.thumb }}"
+              alt="{{ bike.name }}"
+              class="gallery__image"
+              data-full-src="/api/images/{{ bike.id }}/{{ image.filename }}"
+            >
+          {% endfor %}
+        </div>
+        {% if images|length > 1 %}
+          <button
+            type="button"
+            class="gallery-nav__arrow gallery-nav__arrow--prev"
+            aria-label="Previous image"
+            disabled
           >
-        {% endfor %}
+            <svg class="gallery-nav__icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button
+            type="button"
+            class="gallery-nav__arrow gallery-nav__arrow--next"
+            aria-label="Next image"
+          >
+            <svg class="gallery-nav__icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        {% endif %}
       </div>
     {% else %}
       <div class="gallery--empty">No images yet</div>
@@ -101,6 +120,7 @@
 {% block scripts %}
 <script src="/static/js/bike-delete.js"></script>
 <script src="/static/js/maintenance-form.js"></script>
+<script src="/static/js/gallery-nav.js"></script>
 <script>
   (function() {
     const modal = document.getElementById('image-modal');
