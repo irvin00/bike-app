@@ -1,0 +1,37 @@
+{% extends "base.html.j2" %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Pills</h1>
+</div>
+
+<div class="pill-manage">
+  <!-- AddPillForm -->
+  <form class="pill-form" id="add-pill-form">
+    <input type="text" name="label" placeholder="Label (e.g. Steel Frame)" required>
+    <input type="color" name="color" value="#6b7280" title="Color">
+    <button type="submit" class="btn btn--primary">Add Pill</button>
+  </form>
+
+  <p class="pill-note">Deleting a pill removes it from all bikes.</p>
+
+  <!-- PillList -->
+  <ul class="pill-list" id="pill-list">
+    {% for pill in pills %}
+      <li class="pill-row" data-pill-id="{{ pill.id }}">
+        <span class="pill-swatch" style="background: {{ pill.color }}"></span>
+        <span class="pill-row__label">{{ pill.label }}</span>
+        <button class="pill-row__delete" data-pill-id="{{ pill.id }}">Delete</button>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <p id="pill-empty" class="empty-state" {% if pills %}style="display: none;"{% endif %}>
+    No pills yet. Add your first one above.
+  </p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/pills.js"></script>
+{% endblock %}

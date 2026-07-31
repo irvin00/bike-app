@@ -110,6 +110,86 @@ curl -s -X POST http://127.0.0.1:8000/api/bikes \
 
 ---
 
+## 9. List all pills
+
+```bash
+curl -s http://127.0.0.1:8000/api/pills
+```
+
+**Expected:** 5 seeded pills, each with `id`, `label`, `color`, ordered by label.
+
+---
+
+## 10. Create a pill
+
+```bash
+curl -s -X POST http://127.0.0.1:8000/api/pills \
+  -H "Content-Type: application/json" \
+  -d '{"label":"Steel Frame","color":"#b45309"}' \
+  -w "\nHTTP %{http_code}\n"
+```
+
+**Expected:** HTTP 201. Pill returned with `id`, `label: "Steel Frame"`, `color: "#b45309"`.
+(Note the new pill's id — e.g. 6 — for section 12.)
+
+---
+
+## 11. Error: duplicate label
+
+```bash
+curl -s -X POST http://127.0.0.1:8000/api/pills \
+  -H "Content-Type: application/json" \
+  -d '{"label":"Steel Frame","color":"#b45309"}' \
+  -w "\nHTTP %{http_code}\n"
+```
+
+**Expected:** HTTP 409 with `{"detail":"A pill with this label already exists"}`.
+
+---
+
+## 12. Delete a pill (and verify cascade)
+
+```bash
+# Attach the pill to bike 1, then delete the pill
+curl -s -X PUT http://127.0.0.1:8000/api/bikes/1/pills \
+  -H "Content-Type: application/json" \
+  -d '{"pill_ids":[1,4,6]}'
+curl -s -X DELETE http://127.0.0.1:8000/api/pills/6 -w "\nHTTP %{http_code}\n"
+curl -s http://127.0.0.1:8000/api/bikes/1
+# Delete it again (should be gone)
+curl -s -X DELETE http://127.0.0.1:8000/api/pills/6 -w "\nHTTP %{http_code}\n"
+```
+
+**Expected:** PUT returns 3 pills. DELETE returns HTTP 204 (no body). Bike 1's `pills` array is back to Carbon Frame + Disc Brakes — the cascade removed the attachment. Deleting again returns HTTP 404 with `{"detail":"Pill not found"}`.
+
+---
+
+## 13. Error: empty label
+
+```bash
+curl -s -X POST http://127.0.0.1:8000/api/pills \
+  -H "Content-Type: application/json" \
+  -d '{"label":"   "}' \
+  -w "\nHTTP %{http_code}\n"
+```
+
+**Expected:** HTTP 422 with `{"detail":"Label is required"}`.
+
+---
+
+## 14. Pills page (UI)
+
+```bash
+open http://127.0.0.1:8000/pills
+```
+
+1. The nav bar "Pills" button loads the page; all 5 seeded pills are listed with color swatches.
+2. Add a pill via the form (e.g. "Steel Frame", pick a color) — it appears in the list in alphabetical position, and the form clears.
+3. Add the same label again — an alert appears (client-side guard or server 409 message); nothing is added.
+4. Click Delete on a row — a confirm dialog appears; the row disappears; deleting an attached pill also removes its badge from bikes.
+
+---
+
 ## Stop the server
 
 Press `Ctrl+C` in the server terminal.

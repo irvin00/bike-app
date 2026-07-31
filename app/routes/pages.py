@@ -39,6 +39,19 @@ async def home(request: Request):
     return HTMLResponse(html)
 
 
+@router.get("/pills", response_class=HTMLResponse)
+async def pills_page(request: Request):
+    env = request.app.state.templates
+    db = request.app.state.db
+
+    cursor = await db.execute("SELECT * FROM pills ORDER BY label")
+    pills = [dict(r) for r in await cursor.fetchall()]
+
+    template = env.get_template("pills.html.j2")
+    html = template.render(request=request, pills=pills)
+    return HTMLResponse(html)
+
+
 @router.get("/bikes/new", response_class=HTMLResponse)
 async def bike_new(request: Request):
     env = request.app.state.templates

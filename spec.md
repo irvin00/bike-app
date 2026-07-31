@@ -242,18 +242,24 @@ Each card in the grid:
 - `/bikes/{id}/edit` route: edit bike form (shared template with create)
 - Form fields: name, description, full story, status, dates, pills, images
 
-### Phase 4 — Pills Management
+### Phase 4 — Pills Management ✅
 - Pill CRUD API routes
 - `/pills` page: list, add form, delete buttons
 - Pill selector (multi-select checkboxes) on bike create/edit forms
 
-### Phase 5 — Image Upload
+### Phase 5 — Home Page Status Filter
+- `/` route honors `?status=` query param (all / active / former), reusing the
+  existing `/api/bikes?status=` filter support
+- Nav "All / Active / Former" buttons switch the filter on the home grid
+- Active filter button is highlighted to reflect the current selection
+
+### Phase 6 — Image Upload
 - Multipart upload endpoint (FastAPI `UploadFile`)
 - Image resizing + thumbnail with Pillow
 - Drag-and-drop upload zone (vanilla JS `drop` event + `FormData`)
 - Primary image selection, reorder, delete
 
-### Phase 6 — Polish
+### Phase 7 — Polish
 - Responsive grid (1 col mobile, 2 tablet, 3+ desktop) via CSS container queries
 - Transitions and hover states
 - Empty states and error banners
