@@ -443,20 +443,3 @@ bike_view/
 | Search & filter   | Status toggle only           | active / former / all; no text search or pill filter |
 | Responsive design | Desktop + mobile             | Fully responsive grid and forms                |
 
----
-
-## 9. V2 Follow-ups
-
-Features explicitly deferred to a future version:
-
-1. **JSON export** — ✅ Shipped in Phase 9.
-
-2. **Search & text/pill filter** — Full-text search across bike names and
-   descriptions, plus filtering by attached pills on the home page.
-
-3. **Maintenance reminders** — Surface upcoming or past-due maintenance based on
-   mileage or time intervals (e.g. "chain lube due in 100 miles"). Requires
-   mileage tracking and interval configuration.
-
-4. **Authentication** — Basic Auth or NextAuth single-user provider, needed
-   only if the app is later exposed to the internet.
