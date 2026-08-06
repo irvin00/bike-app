@@ -270,7 +270,8 @@ button:focus-visible {
   transform: scale(1.03);
 }
 
-.bike-card__image--placeholder {
+.bike-card__image--placeholder,
+.image-fallback {
   object-fit: contain;
   padding: 1rem;
 }
@@ -1209,4 +1210,105 @@ button:focus-visible {
 @keyframes spin {
   from { transform: translateX(-50%) rotate(0); } /* keep it centered: the */
   to { transform: translateX(-50%) rotate(1turn); } /* keyframe transform IS the centering */
+}
+
+/* === Settings Drawer === */
+.settings-drawer {
+  border: none;
+  margin: 0 0 0 auto; /* anchor right */
+  height: 100%;
+  max-height: 100%;
+  width: min(320px, 100vw);
+  padding: 0;
+  background: var(--color-surface);
+}
+.settings-drawer::backdrop {
+  background: rgba(17, 24, 39, 0.5);
+}
+.settings-drawer[open] {
+  animation: drawer-slide-in 0.2s ease-out;
+}
+@keyframes drawer-slide-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+.settings-drawer__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.settings-drawer__title {
+  font-size: 1.1rem;
+  margin: 0;
+}
+.settings-drawer__close {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  padding: 0.2rem 0.3rem;
+}
+.settings-drawer__close:hover {
+  color: var(--color-text);
+}
+.settings-drawer__sections {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0;
+}
+.settings-drawer__section {
+  padding: 0.75rem 1.25rem;
+  color: var(--color-text);
+  text-decoration: none;
+}
+.settings-drawer__section:hover {
+  background: var(--color-bg);
+  color: var(--color-accent);
+}
+.settings-open-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  padding: 0.4rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+}
+.settings-open-btn:hover {
+  color: var(--color-text);
+  background: var(--color-border);
+}
+.settings-open-btn svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* === Settings / Data page === */
+.settings-block {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.settings-block h2 {
+  margin-top: 0;
+}
+.import-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.settings-status {
+  margin: 0.75rem 0 0;
+  color: var(--color-text-muted);
+}
+.settings-status--ok {
+  color: var(--color-active);
 }

@@ -52,3 +52,24 @@ async def test_bike_edit(seeded_client):
 async def test_bike_detail_404(client):
     r = await client.get("/bikes/999")
     assert r.status_code == 404
+
+
+async def test_settings_data_page(client):
+    r = await client.get("/settings/data")
+    assert r.status_code == 200
+    assert "Import" in r.text
+    assert 'href="/api/export"' in r.text
+    assert "settings-data.js" in r.text
+
+
+async def test_settings_drawer_present(client):
+    # Base-level inclusion: the gear button + drawer + its script are on
+    # every page that extends base.html.j2.
+    for path in ("/", "/pills"):
+        r = await client.get(path)
+        assert r.status_code == 200
+        assert 'id="settings-drawer"' in r.text
+        assert 'id="settings-open-btn"' in r.text
+        assert "settings-drawer.js" in r.text
+        assert "image-fallback.js" in r.text
+

@@ -70,6 +70,14 @@ async def pills_page(request: Request):
     return HTMLResponse(html)
 
 
+@router.get("/settings/data", response_class=HTMLResponse)
+async def settings_data(request: Request):
+    env = request.app.state.templates
+    template = env.get_template("settings_data.html.j2")
+    html = template.render(request=request, show_status_filter=False)
+    return HTMLResponse(html)
+
+
 @router.get("/bikes/new", response_class=HTMLResponse)
 async def bike_new(request: Request):
     env = request.app.state.templates

@@ -289,7 +289,7 @@ Each card in the grid:
 - Loading spinners (CSS animation on fetch calls) ✅
 - Unit tests with pytest + httpx (ASGITransport) for all API routes ✅
 
-### Phase 9 — Settings & Data Management (V2 follow-up)
+### Phase 9 — Settings & Data Management ✅
 - Settings button (gear icon) in the nav bar opens a slide-in sidebar drawer
   (vanilla JS, same overlay pattern as the confirm dialogs)
 - Sidebar lists settings sections; extensible to future options (Appearance,
@@ -300,7 +300,7 @@ Each card in the grid:
     (Content-Disposition attachment; nested shape: bikes with pills, images
     with url/thumb_url, maintenance records, plus the pill catalog) — shipped
   - **Import** — file picker for a `bike_view.json` export → `POST /api/import`
-    (multipart upload); server validates the export shape and restores it
+    (multipart upload); server validates the export shape and restores it — shipped
 - Import semantics (v1): full restore — existing rows are deleted, then
   bikes, pills, bike_pills, maintenance_records, and images are inserted from
   the JSON; destructive action requires a confirm dialog; the response
@@ -312,6 +312,53 @@ Each card in the grid:
 - Pill catalog inserts are idempotent (INSERT OR IGNORE on unique label)
 - Validation is all-or-nothing: the whole file must validate (missing keys,
   wrong types) before anything is written — 422 with a clear message otherwise
+
+### Phase 10 — PWA Push Notifications ⏳ Planned, not implemented
+
+Design finalized 2026-08-05; nothing shipped yet. Implements V2 follow-up #3's
+reminder half (below) via standard PWA Web Push.
+
+- **What**: two notification triggers —
+  - **Maintenance reminders**: a daily background check (asyncio loop started
+    in the app lifespan, gated behind `PUSH_REMINDER_ENABLED=1` + VAPID keys
+    present so tests never start it) that finds **active** bikes whose most
+    recent `maintenance_records.date` is older than `REMINDER_DAYS` (env var,
+    default 30) and pushes "Time to service the {name}". Bikes with no
+    maintenance history are skipped.
+  - **Test send**: a "Send test notification" button in the UI.
+- **Mechanism**: browser subscribes via PushManager with the app's VAPID
+  public key; the subscription is stored server-side in a new
+  `push_subscriptions` table (upsert by endpoint, so the client can naively
+  re-POST on every page load); `pywebpush` sends encrypted pushes with
+  `ttl=86400`; expired subscriptions (404/410) are deleted. A new
+  `maintenance_reminders` table (bike_id PK, `last_sent`) debounces to at
+  most one reminder per window per bike — no ALTER on existing tables, both
+  are plain `CREATE TABLE IF NOT EXISTS`.
+- **New files** (planned): `app/push.py` (VAPID helpers, send, reminder
+  check/loop), `app/routes/push.py` (`POST /api/push/subscriptions`,
+  `DELETE /api/push/subscriptions?endpoint=...`, `POST /api/push/test`,
+  `GET /api/push/public-key`, `POST /api/push/reminders/run`, plus `GET
+  /sw.js` and `GET /manifest.webmanifest` served at root scope with explicit
+  MIME types), `static/sw.js` (push-only — no fetch handler, no caching),
+  `static/manifest.webmanifest`, `static/js/push.js`, and PNG icons
+  (192/512 + 180px apple-touch-icon) generated once from `favicon.jpg`.
+- **Constraints** (why it's blocked on infra):
+  - **HTTPS required** — Web Push and service workers only work in secure
+    contexts. App is plain HTTP on a LAN today. Plan: Caddy reverse proxy in
+    `compose.yaml` with automatic Let's Encrypt behind a DuckDNS domain
+    (a bare LAN IP cannot get a public cert; NAT hairpin must work for
+    phones on the LAN). Fallback if the ISP uses CGNAT: Tailscale Serve
+    (`*.ts.net` URL, no port forwarding).
+  - **iOS Safari (16.4+)** only delivers Web Push to *installed* PWAs: user
+    must Add to Home Screen / Dock (`display: standalone` + `apple-touch-icon`
+    required), and `Notification.requestPermission()` must come from a user
+    gesture — never on page load, or iOS marks it denied permanently.
+  - **`TZ` env var** must be set in compose — containers default to UTC and
+    reminder dates are local calendar dates.
+- **Config**: env vars only — `REMINDER_DAYS` (default 30),
+  `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` (generated once,
+  kept in gitignored `.env`, template in `.env.example`),
+  `PUSH_REMINDER_ENABLED`.
 
 ---
 
@@ -338,6 +385,8 @@ bike_view/
 │   │   ├── __init__.py
 │   │   ├── bikes.py                 ← /api/bikes and /api/bikes/{id}
 │   │   ├── pills.py                 ← /api/pills and /api/pills/{id}
+│   │   ├── export.py                ← GET /api/export
+│   │   ├── import_data.py           ← POST /api/import (full restore)
 │   │   ├── bike_pills.py            ← /api/bikes/{id}/pills
 │   │   ├── maintenance.py           ← /api/bikes/{id}/maintenance/{record_id}
 │   │   ├── images.py                ← /api/bikes/{id}/images/{image_id}
@@ -348,10 +397,12 @@ bike_view/
 │       ├── bike_detail.html.j2      ← full-page view + maintenance
 │       ├── bike_form.html.j2        ← shared create/edit form
 │       ├── pills.html.j2            ← pill management page
+│       ├── settings_data.html.j2    ← export/import page
 │       └── partials/
 │           ├── bike_card.html.j2    ← single card (reused in grid)
 │           ├── pill_badge.html.j2   ← colored pill span
-│           └── confirm_dialog.html.j2 ← reusable <dialog>
+│           ├── confirm_dialog.html.j2 ← reusable <dialog>
+│           └── settings_drawer.html.j2 ← slide-in settings sidebar
 ├── static/
 │   ├── css/
 │   │   └── app.css                  ← all styles, CSS variables for tokens
@@ -364,7 +415,10 @@ bike_view/
 │   │   ├── bike-delete.js           ← home/detail delete flows
 │   │   ├── gallery-nav.js           ← gallery prev/next arrows
 │   │   ├── pills.js                 ← pill page CRUD
-│   │   └── confirm-dialog.js        ← <dialog> open/close + confirm hook
+│   │   ├── confirm-dialog.js        ← <dialog> open/close + confirm hook
+│   │   ├── settings-drawer.js       ← settings sidebar open/close
+│   │   ├── settings-data.js         ← import flow on /settings/data
+│   │   └── image-fallback.js        ← missing-image → placeholder swap
 │   └── img/
 │       └── placeholder-bike.svg     ← fallback image
 ├── tests/

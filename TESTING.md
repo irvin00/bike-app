@@ -487,9 +487,49 @@ curl -s -D - -o /dev/null http://127.0.0.1:8000/api/export | grep -i content-dis
 open http://127.0.0.1:8000/
 ```
 
-1. The "My Bikes" header shows a **Download JSON** button on the right.
-2. Clicking it downloads `bike_view.json` (no page navigation).
-3. Open the file — every bike's details, photos, and maintenance history are there, readable.
+1. Click the gear icon in the nav bar — the Settings drawer slides in.
+2. Click **Data** — the Settings / Data page opens with the Export and Import blocks.
+3. In Export, click **Download bike_view.json** — it downloads `bike_view.json` (no page navigation).
+4. Open the file — every bike's details, photos, and maintenance history are there, readable.
+
+---
+
+## 20. Settings: import data (restore from export)
+
+The nav gear opens the Settings drawer; "Data" opens the full Settings / Data page. Import restores a `bike_view.json` export, **replacing all current data**.
+
+```bash
+# Export a file to use as the import payload
+curl -s http://127.0.0.1:8000/api/export -o bike_view.json
+python3 -m json.tool bike_view.json | head -20
+# Import it back (full restore)
+curl -s -F "file=@bike_view.json" http://127.0.0.1:8000/api/import -w "\nHTTP %{http_code}\n"
+# Verify the restored bikes match the file
+curl -s http://127.0.0.1:8000/api/bikes | grep -o '"name"' | wc -l
+```
+
+**Expected:** import returns HTTP 200 with `{"bikes":…, "pills":…, "images":…, "maintenance":…}` counts; the bike list matches the file.
+
+```bash
+# Error paths
+curl -s -F "file=@pyproject.toml" http://127.0.0.1:8000/api/import -w "\nHTTP %{http_code}\n"
+curl -s -X POST http://127.0.0.1:8000/api/import -w "\nHTTP %{http_code}\n"
+```
+
+**Expected:** 422 with a string `detail` for the non-JSON file ("File is not a valid bike_view.json export") and for the missing file ("No file uploaded"). A file that fails validation writes nothing — export afterwards still shows the pre-import data.
+
+**Browser steps:**
+
+```bash
+open http://127.0.0.1:8000/
+```
+
+1. The nav gear (top right) opens a slide-in Settings drawer; ESC, backdrop click, or the × closes it. The drawer lists one section: **Data**.
+2. **Data** opens `/settings/data` — two blocks: Export and Import.
+3. In Import, pick a `bike_view.json` export and click **Import** — a confirm dialog warns that all existing bikes, pills, photos, and maintenance records will be replaced. Cancel — nothing happens.
+4. Confirm — the page shows "Restored N bikes, N pills, N images, N maintenance records." and the file input clears.
+5. Pick a non-JSON file and Import — a red error banner appears; nothing changes.
+6. Image files are not in the JSON: to bring photos back, copy the export's `uploads/` folder alongside the app's `uploads/`. Restored image rows whose files are missing show the placeholder image instead of a broken icon.
 
 ---
 
